@@ -1152,7 +1152,9 @@ function speak(text, lang, rate, pitch, onDone) {
   utt.lang  = LANG_CONFIG[lang]?.tts || 'en-US';
   utt.rate  = rate  || 0.88;
   utt.pitch = pitch || 1.1;
-  const v = preferredVoice[lang] || preferredVoice.en;
+  // Only assign a voice if we found one for this exact language
+  // Never fall back to English voice for non-English — let browser use utt.lang
+  const v = preferredVoice[lang];
   if (v) utt.voice = v;
   let finished = false;
   const finish = () => {
@@ -1163,7 +1165,7 @@ function speak(text, lang, rate, pitch, onDone) {
   utt.onend   = finish;
   utt.onerror = e => { if (e.error !== 'interrupted') console.warn('TTS:', e.error); finish(); };
   synth.speak(utt);
-  setTimeout(finish, Math.max(3000, text.length * 120));
+  setTimeout(finish, Math.max(3000, text.length * 150));
 }
 
 function readWord() {
@@ -1189,6 +1191,45 @@ function srLetterSound(letter) {
   return SR_LETTER_PHONETICS[letter.toUpperCase()] || letter;
 }
 
+// ── Per-language letter name pronunciations ──────────────────────
+// Each language spells letters using its OWN letter names, not English
+const LETTER_NAMES = {
+  fr: { // French letter names
+    'a':'a','b':'bé','c':'cé','d':'dé','e':'e','f':'effe','g':'gé',
+    'h':'ache','i':'i','j':'ji','k':'ka','l':'elle','m':'emme',
+    'n':'enne','o':'o','p':'pé','q':'ku','r':'erre','s':'esse',
+    't':'té','u':'u','v':'vé','w':'double vé','x':'iks','y':'i grec','z':'zède',
+    'é':'é','è':'è','ê':'ê','à':'à','â':'â','î':'î','ô':'ô','û':'û','ç':'cé cédille',
+  },
+  de: { // German letter names
+    'a':'a','b':'bé','c':'tsé','d':'dé','e':'e','f':'eff','g':'gé',
+    'h':'ha','i':'i','j':'jot','k':'ka','l':'ell','m':'em',
+    'n':'en','o':'o','p':'pé','q':'ku','r':'err','s':'ess',
+    't':'té','u':'u','v':'fau','w':'vé','x':'iks','y':'üpsilon','z':'tsett',
+    'ä':'ä','ö':'ö','ü':'ü','ß':'ess-tsett',
+  },
+  es: { // Spanish letter names
+    'a':'a','b':'be','c':'ce','d':'de','e':'e','f':'efe','g':'ge',
+    'h':'hache','i':'i','j':'jota','k':'ka','l':'ele','m':'eme',
+    'n':'ene','o':'o','p':'pe','q':'cu','r':'erre','s':'ese',
+    't':'te','u':'u','v':'uve','w':'uve doble','x':'equis','y':'ye','z':'zeta',
+    'ñ':'eñe','á':'a con acento','é':'e con acento','í':'i con acento',
+    'ó':'o con acento','ú':'u con acento','ü':'u con diéresis',
+  },
+  it: { // Italian letter names
+    'a':'a','b':'bi','c':'ci','d':'di','e':'e','f':'effe','g':'gi',
+    'h':'acca','i':'i','j':'i lunga','k':'cappa','l':'elle','m':'emme',
+    'n':'enne','o':'o','p':'pi','q':'cu','r':'erre','s':'esse',
+    't':'ti','u':'u','v':'vu','w':'doppia vu','x':'ics','y':'ipsilon','z':'zeta',
+  },
+};
+
+function getLetterName(letter, lang) {
+  const map = LETTER_NAMES[lang];
+  if (!map) return letter;
+  return map[letter.toLowerCase()] || letter;
+}
+
 function spellAloudThen(onDone) {
   if (!currentWord || !synth) { if (onDone) onDone(); return; }
   loadVoices();
@@ -1198,44 +1239,62 @@ function spellAloudThen(onDone) {
   const isSr      = currentLang === 'sr';
   const isRu      = currentLang === 'ru';
   const isChinese = currentLang === 'zh';
+  const hasLetterNames = LETTER_NAMES[currentLang];
 
   let items;
+  let gap = 300;
 
   if (isChinese) {
+    // Chinese: say whole word twice slowly
     items = [
       { text: word, rate: 0.75 },
       { text: word, rate: 0.60 },
     ];
+    gap = 400;
   } else if (isSr) {
-    // Serbian is phonetic — spell each letter as its pure sound, slowly
+    // Serbian: perfectly phonetic — each letter IS its sound
     const letters = word.replace(/ /g, '').split('');
     items = [
       { text: word, rate: 0.78 },
       ...letters.map(l => ({ text: l, rate: 0.45 })),
       { text: word, rate: 0.78 },
     ];
+    gap = 450;
   } else if (isRu) {
+    // Russian: Cyrillic, let Russian TTS pronounce each letter
     const letters = word.replace(/ /g, '').split('');
     items = [
       { text: word, rate: 0.80 },
-      ...letters.map(l => ({ text: l, rate: 0.62 })),
+      ...letters.map(l => ({ text: l, rate: 0.55 })),
       { text: word, rate: 0.78 },
     ];
+    gap = 380;
+  } else if (hasLetterNames) {
+    // French, German, Spanish, Italian — use native letter names
+    const letters = word.replace(/ /g, '').split('');
+    items = [
+      { text: word, rate: 0.80 },
+      ...letters.map(l => ({ text: getLetterName(l, currentLang), rate: 0.70 })),
+      { text: word, rate: 0.78 },
+    ];
+    gap = 320;
   } else {
+    // English and others — standard letter by letter
     const letters = word.replace(/ /g, '').split('');
     items = [
       { text: word, rate: 0.82 },
       ...letters.map(l => ({ text: l, rate: 0.72 })),
       { text: word, rate: 0.78 },
     ];
+    gap = 280;
   }
 
   let idx = 0;
   function next() {
     if (idx >= items.length) { setBotState(''); if (onDone) onDone(); return; }
     const { text, rate } = items[idx++];
-    const gap = idx === 1 ? 0 : (isSr ? 450 : 300);
-    setTimeout(() => speak(text, currentLang, rate, 1.05, next), gap);
+    const g = idx === 1 ? 0 : gap;
+    setTimeout(() => speak(text, currentLang, rate, 1.05, next), g);
   }
   setTimeout(next, 80);
 }
