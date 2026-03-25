@@ -1131,12 +1131,16 @@ function loadVoices() {
   if (!all.length) return;
   const rank = v => (/natural|enhanced|premium/i.test(v.name) ? 10 : 0) + (/google/i.test(v.name) ? 5 : 0);
   Object.keys(LANG_CONFIG).forEach(lang => {
-    const tts = LANG_CONFIG[lang].tts;
+    const tts  = LANG_CONFIG[lang].tts;
     const base = tts.split('-')[0];
     preferredVoice[lang] = all
       .filter(v => v.lang.startsWith(base))
       .sort((a, b) => rank(b) - rank(a))[0] || null;
   });
+  // Serbian fallback: if no sr voice found, use Russian (Slavic, same Cyrillic sounds)
+  if (!preferredVoice['sr']) {
+    preferredVoice['sr'] = preferredVoice['ru'] || null;
+  }
 }
 if (synth) { synth.onvoiceschanged = loadVoices; loadVoices(); }
 
@@ -1152,10 +1156,14 @@ function speak(text, lang, rate, pitch, onDone) {
   utt.lang  = LANG_CONFIG[lang]?.tts || 'en-US';
   utt.rate  = rate  || 0.88;
   utt.pitch = pitch || 1.1;
-  // Only assign a voice if we found one for this exact language
-  // Never fall back to English voice for non-English — let browser use utt.lang
+  // Use exact language voice — Serbian falls back to Russian in loadVoices()
+  // Never use English voice for non-English languages
   const v = preferredVoice[lang];
-  if (v) utt.voice = v;
+  if (v) {
+    utt.voice = v;
+    // If using Russian voice for Serbian, keep lang hint as sr-RS for correct phonemes
+    if (lang === 'sr' && v.lang.startsWith('ru')) utt.lang = 'ru-RU';
+  }
   let finished = false;
   const finish = () => {
     if (finished) return; finished = true;
@@ -1301,10 +1309,27 @@ function spellAloudThen(onDone) {
 
 function spellAloud() { spellAloudThen(() => setBotState('')); }
 
+// ── Detect iOS ────────────────────────────────────────────────────
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+// iOS doesn't support Serbian or some other langs — map to closest supported
+const IOS_LANG_FALLBACK = {
+  'sr': 'hr-HR', // Croatian is closest to Serbian on iOS
+  'zh': 'zh-CN',
+};
+
+function getMicLang(lang) {
+  if (isIOS && IOS_LANG_FALLBACK[lang]) return IOS_LANG_FALLBACK[lang];
+  return LANG_CONFIG[lang].tts;
+}
+
 // ── Mic ───────────────────────────────────────────────────────────
 let recognition = null;
+let micRestartTimer = null;
 
 function stopMic() {
+  if (micRestartTimer) { clearTimeout(micRestartTimer); micRestartTimer = null; }
   if (recognition) { try { recognition.abort(); } catch(e) {} recognition = null; }
 }
 
@@ -1316,48 +1341,75 @@ function toggleMic() {
   }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
-    setBubble('😕 Voice not supported. Try Chrome or Edge.');
+    setBubble('😕 Voice not supported. Try Chrome or Safari.');
     return;
   }
   cancelSpeech();
   setBotState('listening');
-  setBubble(LANG_CONFIG[currentLang].listening);
+
+  // Show iOS-specific hint for Serbian since it falls back to Croatian recognition
+  if (isIOS && currentLang === 'sr') {
+    setBubble('🎤 Говори реч! (iOS: изговори латиницом)');
+  } else {
+    setBubble(LANG_CONFIG[currentLang].listening);
+  }
 
   recognition = new SR();
-  recognition.lang              = LANG_CONFIG[currentLang].tts;
-  recognition.continuous        = false;
-  recognition.interimResults    = false;
-  recognition.maxAlternatives   = 3;
+  recognition.lang           = getMicLang(currentLang);
+  recognition.continuous     = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = isIOS ? 5 : 3;
 
   let resultFired = false;
+
   recognition.onresult = e => {
     resultFired = true;
-    const transcript = e.results[0][0].transcript.trim();
+    // On iOS take the best alternative
+    let transcript = '';
+    for (let i = 0; i < e.results[0].length; i++) {
+      transcript = e.results[0][i].transcript.trim();
+      if (transcript.length > 0) break;
+    }
     stopMic();
     setBotState('thinking');
     setTimeout(() => handleVoiceInput(transcript), 200);
   };
+
   recognition.onerror = e => {
     if (e.error === 'aborted') return;
     stopMic(); setBotState('');
     const msgs = {
-      'not-allowed':   '🔒 Mic blocked. Allow microphone in browser settings.',
-      'no-speech':     LANG_CONFIG[currentLang].greeting.replace('!', '') + '... try again! 😊',
+      'not-allowed':   '🔒 Mic blocked. Allow microphone in settings.',
+      'no-speech':     isIOS ? '🎤 Tap again and speak clearly!' : LANG_CONFIG[currentLang].greeting.replace('!','') + '... try again! 😊',
       'audio-capture': '🎤 No microphone found.',
-      'network':       '📡 Network error.',
+      'network':       '📡 Network error — check connection.',
     };
     setBubble(msgs[e.error] || ('Error: ' + e.error));
   };
+
   recognition.onend = () => {
     if (!resultFired) {
       stopMic(); setBotState('');
       const cur = document.getElementById('bubbleText').textContent;
-      if (cur.includes('Listening') || cur.includes('écoute') || cur.includes('höre') || cur.includes('Слушаю') || cur.includes('Слушам') || cur.includes('听')) {
+      const listeningPhrases = ['Listening','écoute','höre','Слушаю','Слушам','听','Говори','Escuchando','Ascolto'];
+      if (listeningPhrases.some(p => cur.includes(p))) {
         setBubble(LANG_CONFIG[currentLang].greeting);
       }
     }
   };
-  try { recognition.start(); }
+
+  try {
+    recognition.start();
+    // iOS kills mic after ~5s silence — show tap-again hint
+    if (isIOS) {
+      micRestartTimer = setTimeout(() => {
+        if (recognition) {
+          setBubble(LANG_CONFIG[currentLang].greeting);
+          stopMic(); setBotState('');
+        }
+      }, 6000);
+    }
+  }
   catch(e) { stopMic(); setBotState(''); setBubble('Could not start mic: ' + e.message); }
 }
 
