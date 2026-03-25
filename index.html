@@ -459,7 +459,7 @@ header {
   <!-- Left side characters -->
   <div class="side-char">
     <div class="char-body char-star">⭐</div>
-    <div class="char-name">Stella</div>
+    <div class="char-name">Zara</div>
   </div>
   <div class="side-char">
     <div class="char-body char-heart">💖</div>
@@ -1177,17 +1177,16 @@ function readWord() {
 // Map each Cyrillic letter to a short Serbian word starting with that sound
 // This forces the TTS to say the correct Serbian phoneme, not English letter names
 const SR_LETTER_PHONETICS = {
-  'А':'а', 'Б':'бо', 'В':'во', 'Г':'го', 'Д':'до',
-  'Ђ':'ђе', 'Е':'е', 'Ж':'же', 'З':'зо', 'И':'и',
-  'Ј':'ји', 'К':'ко', 'Л':'ло', 'Љ':'љу', 'М':'мо',
-  'Н':'но', 'Њ':'њу', 'О':'о', 'П':'по', 'Р':'ро',
-  'С':'со', 'Т':'то', 'Ћ':'ћи', 'У':'у', 'Ф':'фо',
-  'Х':'хо', 'Ц':'цо', 'Ч':'чо', 'Џ':'џо', 'Ш':'шо',
+  'А':'а', 'Б':'бе', 'В':'ве', 'Г':'ге', 'Д':'де',
+  'Ђ':'ђе', 'Е':'е', 'Ж':'же', 'З':'зе', 'И':'и',
+  'Ј':'је', 'К':'ке', 'Л':'ле', 'Љ':'ље', 'М':'ме',
+  'Н':'не', 'Њ':'ње', 'О':'о', 'П':'пе', 'Р':'ре',
+  'С':'се', 'Т':'те', 'Ћ':'ће', 'У':'у', 'Ф':'фе',
+  'Х':'хе', 'Ц':'це', 'Ч':'че', 'Џ':'џе', 'Ш':'ше',
 };
 
 function srLetterSound(letter) {
-  const upper = letter.toUpperCase();
-  return SR_LETTER_PHONETICS[upper] || letter;
+  return SR_LETTER_PHONETICS[letter.toUpperCase()] || letter;
 }
 
 function spellAloudThen(onDone) {
@@ -1195,37 +1194,34 @@ function spellAloudThen(onDone) {
   loadVoices();
   cancelSpeech();
   setBotState('speaking');
-  const word     = currentWord;
-  const isSr     = currentLang === 'sr';
-  const isRu     = currentLang === 'ru';
+  const word      = currentWord;
+  const isSr      = currentLang === 'sr';
+  const isRu      = currentLang === 'ru';
   const isChinese = currentLang === 'zh';
 
   let items;
 
   if (isChinese) {
-    // Chinese: say the whole word twice, slowly
     items = [
       { text: word, rate: 0.75 },
-      { text: word, rate: 0.65 },
+      { text: word, rate: 0.60 },
     ];
   } else if (isSr) {
-    // Serbian: say full word, then each letter as its phoneme sound, then full word again
+    // Serbian is phonetic — spell each letter as its pure sound, slowly
     const letters = word.replace(/ /g, '').split('');
     items = [
-      { text: word, rate: 0.75 },
-      ...letters.map(l => ({ text: srLetterSound(l), rate: 0.60 })),
+      { text: word, rate: 0.78 },
+      ...letters.map(l => ({ text: l, rate: 0.45 })),
       { text: word, rate: 0.78 },
     ];
   } else if (isRu) {
-    // Russian: Cyrillic TTS handles letters naturally
     const letters = word.replace(/ /g, '').split('');
     items = [
-      { text: word, rate: 0.75 },
+      { text: word, rate: 0.80 },
       ...letters.map(l => ({ text: l, rate: 0.62 })),
       { text: word, rate: 0.78 },
     ];
   } else {
-    // Latin languages: letter by letter
     const letters = word.replace(/ /g, '').split('');
     items = [
       { text: word, rate: 0.82 },
@@ -1238,7 +1234,7 @@ function spellAloudThen(onDone) {
   function next() {
     if (idx >= items.length) { setBotState(''); if (onDone) onDone(); return; }
     const { text, rate } = items[idx++];
-    const gap = idx === 1 ? 0 : idx === 2 ? 220 : 110;
+    const gap = idx === 1 ? 0 : (isSr ? 450 : 300);
     setTimeout(() => speak(text, currentLang, rate, 1.05, next), gap);
   }
   setTimeout(next, 80);
