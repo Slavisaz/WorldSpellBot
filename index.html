@@ -423,7 +423,7 @@ header {
   <!-- Globe dropdown for other languages -->
   <div class="globe-dropdown-wrap">
     <button class="globe-btn" id="globeBtn" onclick="toggleDropdown()">
-      <span class="globe-icon">🌐</span>
+      <span class="globe-icon" id="globeIcon">🌐</span>
       <span class="selected-lang" id="selectedLangLabel">Choose language…</span>
       <span class="arrow">▼</span>
     </button>
@@ -794,23 +794,55 @@ function wordFallback(word, lang) {
   return { word, msg: `${letters}! 🌟`, fact: factMap[lang] || 'Great word!' };
 }
 
+// ── Serbian Latin → Cyrillic transliteration ────────────────────
+const SR_LAT_TO_CYR = {
+  'lj':'љ','nj':'њ','dž':'џ','dj':'ђ','Lj':'Љ','Nj':'Њ','Dž':'Џ','Dj':'Ђ',
+  'a':'а','b':'б','c':'ц','č':'ч','ć':'ћ','d':'д','đ':'ђ','e':'е','f':'ф',
+  'g':'г','h':'х','i':'и','j':'ј','k':'к','l':'л','m':'м','n':'н','o':'о',
+  'p':'п','r':'р','s':'с','š':'ш','t':'т','u':'у','v':'в','z':'з','ž':'ж',
+  'A':'А','B':'Б','C':'Ц','Č':'Ч','Ć':'Ћ','D':'Д','Đ':'Ђ','E':'Е','F':'Ф',
+  'G':'Г','H':'Х','I':'И','J':'Ј','K':'К','L':'Л','M':'М','N':'Н','O':'О',
+  'P':'П','R':'Р','S':'С','Š':'Ш','T':'Т','U':'У','V':'В','Z':'З','Ž':'Ж',
+};
+
+function srLatinToCyrillic(text) {
+  // Handle digraphs first (lj, nj, dž, dj)
+  let result = text
+    .replace(/lj/gi, m => m[0] === m[0].toUpperCase() ? 'Љ' : 'љ')
+    .replace(/nj/gi, m => m[0] === m[0].toUpperCase() ? 'Њ' : 'њ')
+    .replace(/dž/gi, m => m[0] === m[0].toUpperCase() ? 'Џ' : 'џ')
+    .replace(/dj/gi, m => m[0] === m[0].toUpperCase() ? 'Ђ' : 'ђ');
+  // Then single chars
+  return result.split('').map(ch => SR_LAT_TO_CYR[ch] || ch).join('');
+}
+
 function getWordData(word, lang) {
   const key = word.toLowerCase().trim();
   const cacheKey = key + '|' + lang;
   if (wordCache[cacheKey]) return wordCache[cacheKey];
   const data = WORD_DATA[lang];
   if (data && data[key]) return { word: key, ...data[key] };
-  // Chinese: try direct lookup including traditional
+  // Chinese: try direct lookup
   if (lang === 'zh' && data && data[word]) return { word, ...data[word] };
-  return wordFallback(key, lang);
+  // Serbian: if voice returned Latin, convert to Cyrillic and try again
+  if (lang === 'sr') {
+    const cyr = srLatinToCyrillic(key);
+    if (data && data[cyr]) return { word: cyr, ...data[cyr] };
+    // Also try original capitalised Cyrillic key
+    const cyrOrig = srLatinToCyrillic(word.trim());
+    if (data && data[cyrOrig]) return { word: cyrOrig, ...data[cyrOrig] };
+  }
+  return wordFallback(lang === 'sr' ? srLatinToCyrillic(key) : key, lang);
 }
 
 function enrichWordAsync(word, lang) {
-  const key = word.toLowerCase().trim();
+  // For Serbian, always work in Cyrillic
+  const actualWord = lang === 'sr' ? srLatinToCyrillic(word.trim()) : word;
+  const key = lang === 'sr' ? actualWord : actualWord.toLowerCase().trim();
   const cacheKey = key + '|' + lang;
   if (wordCache[cacheKey]) return;
   const data = WORD_DATA[lang];
-  if (data && (data[key] || data[word])) return;
+  if (data && (data[key] || data[actualWord])) return;
   if (!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY === 'YOUR_API_KEY') return;
 
   const cfg = LANG_CONFIG[lang];
@@ -937,19 +969,22 @@ function setLang(lang) {
   const enBtn = document.getElementById('enBtn');
   enBtn.classList.toggle('active', lang === 'en');
 
-  // Update globe button label
+  // Update globe button label and icon
   const cfg = LANG_CONFIG[lang];
   const label = document.getElementById('selectedLangLabel');
+  const globeIcon = document.getElementById('globeIcon');
   const globeBtn = document.getElementById('globeBtn');
   if (lang === 'en') {
     label.textContent = 'Choose language…';
+    globeIcon.textContent = '🌐';
     globeBtn.style.borderColor = '';
   } else {
-    label.textContent = cfg.flag + ' ' + cfg.name;
+    label.textContent = cfg.name;
+    globeIcon.textContent = cfg.flag;
     globeBtn.style.borderColor = '#c77dff';
     // mark dropdown option
     document.querySelectorAll('.lang-option').forEach(opt => {
-      opt.classList.toggle('selected', opt.textContent.includes(cfg.name));
+      opt.classList.toggle('selected', opt.querySelector('.lname')?.textContent === cfg.name);
     });
   }
 
