@@ -914,15 +914,28 @@ function parseTranscript(t) {
 }
 
 function handleVoiceInput(transcript) {
-  // For CJK languages, use the transcript more directly
+  if (!transcript || !transcript.trim()) {
+    setBotState('');
+    setBubble(LANG_CONFIG[currentLang].greeting);
+    return;
+  }
+
+  // For Cyrillic/CJK use transcript directly
   if (currentLang === 'zh' || currentLang === 'ru' || currentLang === 'sr') {
     const trimmed = transcript.trim();
     if (trimmed) { doSpell(trimmed); return; }
   }
+
   const word = parseTranscript(transcript);
   if (!word) {
-    const msgs = { en: 'Which word? 😅', fr: 'Quel mot? 😅', de: 'Welches Wort? 😅', es: '¿Qué palabra? 😅', ru: 'Какое слово? 😅', it: 'Quale parola? 😅', sr: 'Која реч? 😅', zh: '哪个词？😅' };
-    setBubble(msgs[currentLang] || 'Which word? 😅');
+    // Fallback — just use the last word of the transcript as-is
+    const raw = transcript.trim().split(/\s+/).pop();
+    if (raw && raw.length >= 1) {
+      doSpell(raw);
+    } else {
+      setBotState('');
+      setBubble(LANG_CONFIG[currentLang].greeting);
+    }
     return;
   }
   doSpell(word);
@@ -1367,16 +1380,14 @@ function toggleMic() {
 
   recognition.onresult = e => {
     resultFired = true;
-    // On iOS take the best alternative
     let transcript = '';
     for (let i = 0; i < e.results[0].length; i++) {
-      transcript = e.results[0][i].transcript.trim();
-      if (transcript.length > 0) break;
+      const t = e.results[0][i].transcript.trim();
+      if (t.length > 0) { transcript = t; break; }
     }
     stopMic();
-    setBotState('thinking');
-    // iOS needs longer delay — mic session must fully close before TTS opens
-    const delay = isIOS ? 900 : 200;
+    // iOS needs longer gap for audio session to switch mic→speaker
+    const delay = isIOS ? 900 : 150;
     setTimeout(() => handleVoiceInput(transcript), delay);
   };
 
