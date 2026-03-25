@@ -174,9 +174,11 @@ header {
 }
 .lang-option:hover { background: #f8f0ff; color: #c77dff; transform: translateX(4px); }
 .lang-option.selected { background: linear-gradient(135deg, #f8f0ff, #e8f4ff); color: #6366f1; }
-.lang-option .flag  { font-size: 1.4rem; }
+.lang-option .flag  { font-size: 1.4rem; width: 28px; text-align: center; display: flex; align-items: center; }
+.lang-option .flag img { width: 24px; height: 18px; border-radius: 3px; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
 .lang-option .lname { flex: 1; }
 .lang-option .lnative { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+.globe-icon img { width: 22px; height: 16px; border-radius: 3px; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
 
 /* ─── SCORE BAR ──────────────────────────────── */
 .score-bar {
@@ -428,13 +430,13 @@ header {
       <span class="arrow">▼</span>
     </button>
     <div class="lang-dropdown" id="langDropdown">
-      <div class="lang-option" onclick="setLang('fr')"><span class="flag">🇫🇷</span><span class="lname">Français</span><span class="lnative">French</span></div>
-      <div class="lang-option" onclick="setLang('de')"><span class="flag">🇩🇪</span><span class="lname">Deutsch</span><span class="lnative">German</span></div>
-      <div class="lang-option" onclick="setLang('es')"><span class="flag">🇪🇸</span><span class="lname">Español</span><span class="lnative">Spanish</span></div>
-      <div class="lang-option" onclick="setLang('ru')"><span class="flag">🇷🇺</span><span class="lname">Русский</span><span class="lnative">Russian</span></div>
-      <div class="lang-option" onclick="setLang('it')"><span class="flag">🇮🇹</span><span class="lname">Italiano</span><span class="lnative">Italian</span></div>
-      <div class="lang-option" onclick="setLang('sr')"><span class="flag">🇷🇸</span><span class="lname">Српски</span><span class="lnative">Serbian</span></div>
-      <div class="lang-option" onclick="setLang('zh')"><span class="flag">🇨🇳</span><span class="lname">中文</span><span class="lnative">Mandarin</span></div>
+      <div class="lang-option" onclick="setLang('fr')"><span class="flag"><img src="https://flagcdn.com/w40/fr.png" alt="FR"></span><span class="lname">Français</span><span class="lnative">French</span></div>
+      <div class="lang-option" onclick="setLang('de')"><span class="flag"><img src="https://flagcdn.com/w40/de.png" alt="DE"></span><span class="lname">Deutsch</span><span class="lnative">German</span></div>
+      <div class="lang-option" onclick="setLang('es')"><span class="flag"><img src="https://flagcdn.com/w40/es.png" alt="ES"></span><span class="lname">Español</span><span class="lnative">Spanish</span></div>
+      <div class="lang-option" onclick="setLang('ru')"><span class="flag"><img src="https://flagcdn.com/w40/ru.png" alt="RU"></span><span class="lname">Русский</span><span class="lnative">Russian</span></div>
+      <div class="lang-option" onclick="setLang('it')"><span class="flag"><img src="https://flagcdn.com/w40/it.png" alt="IT"></span><span class="lname">Italiano</span><span class="lnative">Italian</span></div>
+      <div class="lang-option" onclick="setLang('sr')"><span class="flag"><img src="https://flagcdn.com/w40/rs.png" alt="RS"></span><span class="lname">Српски</span><span class="lnative">Serbian</span></div>
+      <div class="lang-option" onclick="setLang('zh')"><span class="flag"><img src="https://flagcdn.com/w40/cn.png" alt="CN"></span><span class="lname">中文</span><span class="lnative">Mandarin</span></div>
     </div>
   </div>
 </div>
@@ -538,14 +540,14 @@ let scores = { words: 0, streak: 0, stars: 0 };
 
 // ── Language config ──────────────────────────────────────────────
 const LANG_CONFIG = {
-  en: { name: 'English',   flag: '🇬🇧', tts: 'en-US', greeting: 'Hi! Tap me and say a word! 😊',     thinking: 'Hmm, let me think... 🤔',   listening: '🎤 Listening... say a word!',  readBtn: '▶ Read word', spellAloud: '🔤 Spell aloud' },
-  fr: { name: 'Français',  flag: '🇫🇷', tts: 'fr-FR', greeting: 'Appuie sur moi et dis un mot! 😊',  thinking: 'Hmm, laisse-moi réfléchir... 🤔', listening: "🎤 J'écoute... dis un mot!", readBtn: '▶ Lire le mot', spellAloud: '🔤 Épeler' },
-  de: { name: 'Deutsch',   flag: '🇩🇪', tts: 'de-DE', greeting: 'Tipp mich an und sag ein Wort! 😊', thinking: 'Hmm, lass mich nachdenken... 🤔', listening: '🎤 Ich höre... sag ein Wort!', readBtn: '▶ Vorlesen', spellAloud: '🔤 Buchstabieren' },
-  es: { name: 'Español',   flag: '🇪🇸', tts: 'es-ES', greeting: '¡Tócame y di una palabra! 😊',      thinking: 'Hmm, déjame pensar... 🤔',   listening: '🎤 Escuchando... ¡di una palabra!', readBtn: '▶ Leer palabra', spellAloud: '🔤 Deletrear' },
-  ru: { name: 'Русский',   flag: '🇷🇺', tts: 'ru-RU', greeting: 'Нажми меня и скажи слово! 😊',      thinking: 'Хмм, дай подумаю... 🤔',    listening: '🎤 Слушаю... скажи слово!',   readBtn: '▶ Прочитать', spellAloud: '🔤 Произнести' },
-  it: { name: 'Italiano',  flag: '🇮🇹', tts: 'it-IT', greeting: 'Toccami e di una parola! 😊',       thinking: 'Hmm, fammi pensare... 🤔',   listening: '🎤 Ascolto... di una parola!', readBtn: '▶ Leggi parola', spellAloud: '🔤 Compita' },
-  sr: { name: 'Српски',    flag: '🇷🇸', tts: 'sr-RS', greeting: 'Додирни ме и реци реч! 😊',         thinking: 'Хм, дај да размислим... 🤔', listening: '🎤 Слушам... реци реч!',      readBtn: '▶ Прочитај', spellAloud: '🔤 Слова по слово' },
-  zh: { name: '中文',       flag: '🇨🇳', tts: 'zh-CN', greeting: '点击我，说一个词！😊',               thinking: '嗯，让我想想... 🤔',         listening: '🎤 听着...说一个词！',          readBtn: '▶ 读单词', spellAloud: '🔤 拼写' },
+  en: { name: 'English',   flag: '🇬🇧', flagImg: 'https://flagcdn.com/w40/gb.png', tts: 'en-US', greeting: 'Hi! Tap me and say a word! 😊',     thinking: 'Hmm, let me think... 🤔',   listening: '🎤 Listening... say a word!',  readBtn: '▶ Read word', spellAloud: '🔤 Spell aloud' },
+  fr: { name: 'Français',  flag: '🇫🇷', flagImg: 'https://flagcdn.com/w40/fr.png', tts: 'fr-FR', greeting: 'Appuie sur moi et dis un mot! 😊',  thinking: 'Hmm, laisse-moi réfléchir... 🤔', listening: "🎤 J'écoute... dis un mot!", readBtn: '▶ Lire le mot', spellAloud: '🔤 Épeler' },
+  de: { name: 'Deutsch',   flag: '🇩🇪', flagImg: 'https://flagcdn.com/w40/de.png', tts: 'de-DE', greeting: 'Tipp mich an und sag ein Wort! 😊', thinking: 'Hmm, lass mich nachdenken... 🤔', listening: '🎤 Ich höre... sag ein Wort!', readBtn: '▶ Vorlesen', spellAloud: '🔤 Buchstabieren' },
+  es: { name: 'Español',   flag: '🇪🇸', flagImg: 'https://flagcdn.com/w40/es.png', tts: 'es-ES', greeting: '¡Tócame y di una palabra! 😊',      thinking: 'Hmm, déjame pensar... 🤔',   listening: '🎤 Escuchando... ¡di una palabra!', readBtn: '▶ Leer palabra', spellAloud: '🔤 Deletrear' },
+  ru: { name: 'Русский',   flag: '🇷🇺', flagImg: 'https://flagcdn.com/w40/ru.png', tts: 'ru-RU', greeting: 'Нажми меня и скажи слово! 😊',      thinking: 'Хмм, дай подумаю... 🤔',    listening: '🎤 Слушаю... скажи слово!',   readBtn: '▶ Прочитать', spellAloud: '🔤 Произнести' },
+  it: { name: 'Italiano',  flag: '🇮🇹', flagImg: 'https://flagcdn.com/w40/it.png', tts: 'it-IT', greeting: 'Toccami e di una parola! 😊',       thinking: 'Hmm, fammi pensare... 🤔',   listening: '🎤 Ascolto... di una parola!', readBtn: '▶ Leggi parola', spellAloud: '🔤 Compita' },
+  sr: { name: 'Српски',    flag: '🇷🇸', flagImg: 'https://flagcdn.com/w40/rs.png', tts: 'sr-RS', greeting: 'Додирни ме и реци реч! 😊',         thinking: 'Хм, дај да размислим... 🤔', listening: '🎤 Слушам... реци реч!',      readBtn: '▶ Прочитај', spellAloud: '🔤 Слова по слово' },
+  zh: { name: '中文',       flag: '🇨🇳', flagImg: 'https://flagcdn.com/w40/cn.png', tts: 'zh-CN', greeting: '点击我，说一个词！😊',               thinking: '嗯，让我想想... 🤔',         listening: '🎤 听着...说一个词！',          readBtn: '▶ 读单词', spellAloud: '🔤 拼写' },
 };
 
 const VOWELS = new Set('aeiouyéèêëàâîïôûùüäöüáéíóúñ'.split(''));
@@ -976,11 +978,11 @@ function setLang(lang) {
   const globeBtn = document.getElementById('globeBtn');
   if (lang === 'en') {
     label.textContent = 'Choose language…';
-    globeIcon.textContent = '🌐';
+    globeIcon.innerHTML = '🌐';
     globeBtn.style.borderColor = '';
   } else {
     label.textContent = cfg.name;
-    globeIcon.textContent = cfg.flag;
+    globeIcon.innerHTML = `<img src="${cfg.flagImg}" alt="${lang.toUpperCase()}">`;
     globeBtn.style.borderColor = '#c77dff';
     // mark dropdown option
     document.querySelectorAll('.lang-option').forEach(opt => {
@@ -1177,17 +1179,37 @@ function spellAloudThen(onDone) {
   cancelSpeech();
   setBotState('speaking');
   const word    = currentWord;
-  const letters = word.replace(/ /g, '').split('');
-  const items   = [
-    { text: word, rate: 0.82 },
-    ...letters.map(l => ({ text: l, rate: 0.72 })),
-    { text: word, rate: 0.78 },
-  ];
+  // For Serbian and Russian, letters ARE their phonetic sounds — speak each naturally
+  // For Chinese, just say the word twice (no letter-by-letter)
+  // For others, spell letter by letter
+  const isCyrillic = (currentLang === 'sr' || currentLang === 'ru');
+  const isChinese  = (currentLang === 'zh');
+  let items;
+  if (isChinese) {
+    items = [
+      { text: word, rate: 0.75 },
+      { text: word, rate: 0.65 },
+    ];
+  } else if (isCyrillic) {
+    const letters = word.replace(/ /g, '').split('');
+    items = [
+      { text: word, rate: 0.75 },
+      ...letters.map(l => ({ text: l, rate: 0.65 })),
+      { text: word, rate: 0.78 },
+    ];
+  } else {
+    const letters = word.replace(/ /g, '').split('');
+    items = [
+      { text: word, rate: 0.82 },
+      ...letters.map(l => ({ text: l, rate: 0.72 })),
+      { text: word, rate: 0.78 },
+    ];
+  }
   let idx = 0;
   function next() {
     if (idx >= items.length) { setBotState(''); if (onDone) onDone(); return; }
     const { text, rate } = items[idx++];
-    const gap = idx === 1 ? 0 : idx === 2 ? 180 : 80;
+    const gap = idx === 1 ? 0 : idx === 2 ? 200 : 100;
     setTimeout(() => speak(text, currentLang, rate, 1.1, next), gap);
   }
   setTimeout(next, 80);
