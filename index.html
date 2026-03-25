@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorldSpellBot 🌍</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WorldSpellBot">
+<meta name="theme-color" content="#6366f1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #fff8f0;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --muted: #7c7c9a;
+  --accent1: #ff6b6b;
+  --accent2: #ffd93d;
+  --accent3: #6bcb77;
+  --accent4: #4d96ff;
+  --accent5: #c77dff;
+  --shadow: rgba(0,0,0,0.10);
+  --radius: 24px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px 60px;
+  background-image:
+    radial-gradient(circle at 10% 10%, #ffe0e055 0%, transparent 40%),
+    radial-gradient(circle at 90% 5%,  #c8f7dc55 0%, transparent 35%),
+    radial-gradient(circle at 85% 90%, #d0e8ff55 0%, transparent 40%),
+    radial-gradient(circle at 5%  90%, #fff3c455 0%, transparent 35%);
+  overflow-x: hidden;
+}
+
+/* ─── HEADER ─────────────────────────────────── */
+header {
+  text-align: center;
+  margin-bottom: 14px;
+  animation: floatIn 0.7s ease;
+}
+.logo {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(2.2rem, 7vw, 3.6rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
+  background-size: 300% 300%;
+  animation: gradientShift 4s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.08));
+}
+@keyframes gradientShift {
+  0%,100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+.tagline {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 700;
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+
+/* ─── LANGUAGE SELECTOR ─────────────────────── */
+.lang-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  animation: floatIn 0.8s ease 0.1s backwards;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.lang-en-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  border-radius: 50px;
+  border: none;
+  background: linear-gradient(135deg, #4d96ff, #6bcb77);
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(77,150,255,0.35);
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+.lang-en-btn:hover { transform: translateY(-2px) scale(1.04); }
+.lang-en-btn.active {
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+  box-shadow: 0 4px 18px rgba(255,107,107,0.4);
+  transform: scale(1.06);
+}
+
+.globe-dropdown-wrap { position: relative; }
+
+.globe-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 2.5px solid #e2e8f0;
+  background: white;
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 16px var(--shadow);
+  transition: all 0.25s;
+  white-space: nowrap;
+  min-width: 200px;
+  justify-content: space-between;
+}
+.globe-btn:hover { border-color: #c77dff; box-shadow: 0 6px 20px rgba(199,125,255,0.25); }
+.globe-btn.open  { border-color: #c77dff; background: #fdf4ff; }
+.globe-btn .globe-icon { font-size: 1.3rem; }
+.globe-btn .arrow { font-size: 0.7rem; transition: transform 0.3s; color: var(--muted); }
+.globe-btn.open .arrow { transform: rotate(180deg); }
+.globe-btn .selected-lang { flex: 1; text-align: left; margin-left: 4px; }
+
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) scaleY(0.8);
+  transform-origin: top center;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 12px 50px rgba(0,0,0,0.18);
+  padding: 8px;
+  min-width: 220px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  border: 2px solid #f1f5f9;
+}
+.lang-dropdown.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(-50%) scaleY(1);
+}
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.18s;
+  color: var(--text);
+}
+.lang-option:hover { background: #f8f0ff; color: #c77dff; transform: translateX(4px); }
+.lang-option.selected { background: linear-gradient(135deg, #f8f0ff, #e8f4ff); color: #6366f1; }
+.lang-option .flag  { font-size: 1.4rem; }
+.lang-option .lname { flex: 1; }
+.lang-option .lnative { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+
+/* ─── SCORE BAR ──────────────────────────────── */
+.score-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  animation: floatIn 0.8s ease 0.15s backwards;
+}
+.score-pill {
+  background: white;
+  border-radius: 50px;
+  padding: 6px 16px;
+  text-align: center;
+  box-shadow: 0 4px 16px var(--shadow);
+}
+.score-num { font-family: 'Baloo 2', cursive; font-size: 1.4rem; line-height: 1; }
+.score-num.words  { color: #6366f1; }
+.score-num.streak { color: #ff6b6b; }
+.score-num.stars  { color: #ffd93d; }
+.score-label { font-size: 0.67rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ─── SPEECH BUBBLE ──────────────────────────── */
+.speech-bubble {
+  background: white;
+  border-radius: 22px;
+  padding: 16px 22px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 28px var(--shadow);
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+  min-height: 58px;
+  border: 3px solid #e8eaff;
+  animation: floatIn 0.7s ease 0.2s backwards;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 14px solid #e8eaff;
+}
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 10px solid white;
+  z-index: 1;
+}
+.bubble-text { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.5; }
+
+/* letter boxes */
+.letter-display { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 12px; }
+.letter-box {
+  width: 44px; height: 52px;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.7rem; color: white;
+  box-shadow: 0 4px 0 #4338ca, 0 6px 14px rgba(99,102,241,0.3);
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) backwards;
+  text-transform: uppercase;
+}
+.letter-box.space  { background: transparent; box-shadow: none; width: 14px; }
+.letter-box.accent { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); box-shadow: 0 4px 0 #cc4444, 0 6px 14px rgba(255,107,107,0.3); }
+.letter-box.vowel  { background: linear-gradient(135deg, #ec4899, #f472b6); box-shadow: 0 4px 0 #be185d, 0 6px 14px rgba(236,72,153,0.3); }
+.letter-box.special { background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 4px 0 #b45309, 0 6px 14px rgba(245,158,11,0.3); }
+
+/* ─── CHARACTERS STAGE ───────────────────────── */
+.characters-stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  animation: floatIn 0.8s ease 0.25s backwards;
+}
+
+/* Main robot */
+.bot-face {
+  width: 120px; height: 120px;
+  background: linear-gradient(145deg, #6366f1, #8b5cf6);
+  border-radius: 30px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 0 #4338ca, 0 12px 30px rgba(99,102,241,0.4), inset 0 2px 0 rgba(255,255,255,0.2);
+  animation: float 3s ease-in-out infinite;
+  position: relative;
+  cursor: pointer; user-select: none;
+  transition: background 0.4s ease;
+  flex-shrink: 0;
+}
+.bot-face:hover { transform: translateY(-4px) scale(1.05); }
+.bot-face:active { transform: translateY(4px) scale(0.96); animation: none; }
+
+/* Side characters */
+.side-char {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: default;
+  user-select: none;
+}
+.side-char .char-body {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.15), 0 6px 16px rgba(0,0,0,0.1);
+  animation: float 3s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.side-char .char-name {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.char-star  { background: linear-gradient(145deg, #ffd93d, #f59e0b); animation-delay: -0.8s !important; }
+.char-heart { background: linear-gradient(145deg, #ff6b6b, #ec4899); animation-delay: -1.6s !important; }
+.char-cloud { background: linear-gradient(145deg, #a5f3fc, #38bdf8); animation-delay: -0.4s !important; }
+.char-leaf  { background: linear-gradient(145deg, #6bcb77, #22c55e); animation-delay: -2.1s !important; }
+
+/* bot SVG internals */
+.bot-svg { width: 82px; height: 82px; overflow: visible; }
+.bot-antenna-stick { stroke: rgba(255,255,255,0.7); stroke-width: 2.5; stroke-linecap: round; }
+.bot-antenna-ball  { fill: #fbbf24; filter: drop-shadow(0 0 3px #fbbf24); }
+.bot-plate  { fill: rgba(255,255,255,0.15); }
+.bot-eye-bg { fill: rgba(255,255,255,0.92); }
+.bot-pupil  { fill: #312e81; }
+.bot-shine  { fill: white; }
+.bot-mouth        { display: none; }
+.bot-mouth.active { display: block; }
+.bot-blush { fill: rgba(251,113,133,0.35); }
+.bot-bar   { fill: rgba(255,255,255,0.9); transform-origin: center bottom; }
+.bot-bar1  { animation: barBounce 0.6s ease-in-out infinite; }
+.bot-bar2  { animation: barBounce 0.6s ease-in-out infinite 0.15s; }
+.bot-bar3  { animation: barBounce 0.6s ease-in-out infinite 0.3s; }
+.bot-bar4  { animation: barBounce 0.6s ease-in-out infinite 0.1s; }
+.bot-bar5  { animation: barBounce 0.6s ease-in-out infinite 0.25s; }
+@keyframes barBounce { 0%,100%{transform:scaleY(0.3);} 50%{transform:scaleY(1);} }
+
+.bot-face.speaking {
+  background: linear-gradient(145deg, #10b981, #059669);
+  box-shadow: 0 8px 0 #047857, 0 12px 30px rgba(16,185,129,0.45), inset 0 2px 0 rgba(255,255,255,0.2);
+  animation: speakBounce 0.35s ease-in-out infinite alternate;
+}
+.bot-face.thinking {
+  background: linear-gradient(145deg, #f59e0b, #d97706);
+  box-shadow: 0 8px 0 #b45309, 0 12px 30px rgba(245,158,11,0.45), inset 0 2px 0 rgba(255,255,255,0.2);
+  animation: spin 1.2s linear infinite;
+}
+.bot-face.listening {
+  background: linear-gradient(145deg, #06b6d4, #0891b2);
+  box-shadow: 0 8px 0 #0e7490, 0 12px 30px rgba(6,182,212,0.45), inset 0 2px 0 rgba(255,255,255,0.2);
+  animation: listenPulse 1.4s ease-in-out infinite;
+}
+@keyframes listenPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.07);} }
+
+.bot-tap-hint {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #a5b4fc;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+/* ─── AUDIO CONTROLS ─────────────────────────── */
+.audio-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.audio-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 20px; border-radius: 50px; border: none;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+}
+.audio-btn.play  { background: linear-gradient(135deg, #4ade80, #22c55e); color: white; box-shadow: 0 4px 12px rgba(34,197,94,0.35); }
+.audio-btn.spell { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
+.audio-btn:hover    { transform: translateY(-2px) scale(1.04); }
+.audio-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ─── FUN FACT ────────────────────────────────── */
+.fun-fact {
+  margin-top: 14px;
+  background: linear-gradient(135deg, #fef9c3, #fef3c7);
+  border-radius: 16px; padding: 12px 16px;
+  border-left: 4px solid #fbbf24;
+  font-size: 0.88rem; font-weight: 600; color: #92400e;
+  max-width: 480px; width: 100%; display: none;
+}
+.fun-fact.visible { display: block; animation: floatIn 0.4s ease; }
+
+/* ─── STAR POP ────────────────────────────────── */
+.star-pop { position: fixed; font-size: 2rem; pointer-events: none; animation: starFloat 1.2s ease forwards; z-index: 999; }
+
+/* ─── KEYFRAMES ──────────────────────────────── */
+@keyframes float       { 0%,100%{transform:translateY(0);}  50%{transform:translateY(-8px);} }
+@keyframes speakBounce { from{transform:scale(1) rotate(-2deg);} to{transform:scale(1.07) rotate(2deg);} }
+@keyframes spin        { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+@keyframes floatIn     { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+@keyframes popIn       { from{opacity:0;transform:scale(0.3) rotate(-10deg);} to{opacity:1;transform:scale(1) rotate(0);} }
+@keyframes starFloat   { 0%{opacity:1;transform:translateY(0) scale(1);} 100%{opacity:0;transform:translateY(-100px) scale(1.5);} }
+
+/* ─── RESPONSIVE ─────────────────────────────── */
+@media(max-width:520px) {
+  .bot-face  { width:100px; height:100px; border-radius:26px; }
+  .bot-svg   { width:68px; height:68px; }
+  .side-char .char-body { width:52px; height:52px; font-size:1.6rem; }
+  .letter-box { width:36px; height:44px; font-size:1.3rem; }
+  .globe-btn { min-width: 170px; font-size: 0.85rem; }
+}
+@media(max-width:380px) {
+  .side-char .char-body { width:44px; height:44px; font-size:1.35rem; }
+  .characters-stage { gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🌍 WorldSpellBot</div>
+  <div class="tagline">Spell in any language! ✨</div>
+</header>
+
+<!-- Language selector row -->
+<div class="lang-section">
+  <!-- English primary button -->
+  <button class="lang-en-btn active" id="enBtn" onclick="setLang('en')">
+    🇬🇧 English
+  </button>
+
+  <!-- Globe dropdown for other languages -->
+  <div class="globe-dropdown-wrap">
+    <button class="globe-btn" id="globeBtn" onclick="toggleDropdown()">
+      <span class="globe-icon">🌐</span>
+      <span class="selected-lang" id="selectedLangLabel">Choose language…</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <div class="lang-option" onclick="setLang('fr')"><span class="flag">🇫🇷</span><span class="lname">Français</span><span class="lnative">French</span></div>
+      <div class="lang-option" onclick="setLang('de')"><span class="flag">🇩🇪</span><span class="lname">Deutsch</span><span class="lnative">German</span></div>
+      <div class="lang-option" onclick="setLang('es')"><span class="flag">🇪🇸</span><span class="lname">Español</span><span class="lnative">Spanish</span></div>
+      <div class="lang-option" onclick="setLang('ru')"><span class="flag">🇷🇺</span><span class="lname">Русский</span><span class="lnative">Russian</span></div>
+      <div class="lang-option" onclick="setLang('it')"><span class="flag">🇮🇹</span><span class="lname">Italiano</span><span class="lnative">Italian</span></div>
+      <div class="lang-option" onclick="setLang('sr')"><span class="flag">🇷🇸</span><span class="lname">Српски</span><span class="lnative">Serbian</span></div>
+      <div class="lang-option" onclick="setLang('zh')"><span class="flag">🇨🇳</span><span class="lname">中文</span><span class="lnative">Mandarin</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Score pills -->
+<div class="score-bar">
+  <div class="score-pill"><div class="score-num words" id="scoreWords">0</div><div class="score-label">Words</div></div>
+  <div class="score-pill"><div class="score-num streak" id="scoreStreak">0</div><div class="score-label">Streak 🔥</div></div>
+  <div class="score-pill"><div class="score-num stars" id="scoreStars">⭐</div></div>
+</div>
+
+<!-- Speech bubble -->
+<div class="speech-bubble">
+  <div class="bubble-text" id="bubbleText">Hi! Tap me and say a word! 😊</div>
+  <div class="letter-display" id="letterDisplay"></div>
+</div>
+
+<!-- Characters stage -->
+<div class="characters-stage">
+  <!-- Left side characters -->
+  <div class="side-char">
+    <div class="char-body char-star">⭐</div>
+    <div class="char-name">Stella</div>
+  </div>
+  <div class="side-char">
+    <div class="char-body char-heart">💖</div>
+    <div class="char-name">Ruby</div>
+  </div>
+
+  <!-- Main bot -->
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="bot-face" id="botFace" onclick="toggleMic()" role="button" tabindex="0" title="Tap to speak">
+      <svg class="bot-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <line class="bot-antenna-stick" x1="40" y1="4" x2="40" y2="14"/>
+        <circle class="bot-antenna-ball" cx="40" cy="3" r="3.5"/>
+        <rect class="bot-plate" x="12" y="14" width="56" height="52" rx="12" ry="12"/>
+        <circle class="bot-eye-bg" cx="28" cy="34" r="9"/>
+        <circle class="bot-eye-bg" cx="52" cy="34" r="9"/>
+        <circle class="bot-pupil" id="pupilL" cx="28" cy="35" r="5"/>
+        <circle class="bot-pupil" id="pupilR" cx="52" cy="35" r="5"/>
+        <circle class="bot-shine" cx="30" cy="32" r="2"/>
+        <circle class="bot-shine" cx="54" cy="32" r="2"/>
+        <ellipse class="bot-blush" cx="19" cy="44" rx="5" ry="3"/>
+        <ellipse class="bot-blush" cx="61" cy="44" rx="5" ry="3"/>
+        <path id="mouth-idle" class="bot-mouth active" d="M28 52 Q40 62 52 52"
+          fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round"/>
+        <g id="mouth-speaking" class="bot-mouth">
+          <path id="mouth-upper" d="M28 50 Q40 46 52 50" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="2.5" stroke-linecap="round"/>
+          <path id="mouth-lower" d="M28 50 Q40 58 52 50" fill="rgba(0,0,0,0.25)" stroke="rgba(255,255,255,0.95)" stroke-width="2.5" stroke-linecap="round"/>
+          <ellipse id="mouth-tongue" cx="40" cy="56" rx="5" ry="2.5" fill="#fb7185" opacity="0"/>
+        </g>
+        <line id="mouth-thinking" class="bot-mouth" x1="29" y1="54" x2="51" y2="54"
+          stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 4"/>
+        <g id="mouth-listening" class="bot-mouth">
+          <rect class="bot-bar bot-bar1" x="27" y="48" width="4" height="10" rx="2"/>
+          <rect class="bot-bar bot-bar2" x="33" y="46" width="4" height="12" rx="2"/>
+          <rect class="bot-bar bot-bar3" x="39" y="44" width="4" height="14" rx="2"/>
+          <rect class="bot-bar bot-bar4" x="45" y="46" width="4" height="12" rx="2"/>
+          <rect class="bot-bar bot-bar5" x="51" y="48" width="4" height="10" rx="2"/>
+        </g>
+      </svg>
+    </div>
+    <div class="bot-tap-hint" id="tapHint">TAP TO SPEAK</div>
+  </div>
+
+  <!-- Right side characters -->
+  <div class="side-char">
+    <div class="char-body char-cloud">☁️</div>
+    <div class="char-name">Cloudy</div>
+  </div>
+  <div class="side-char">
+    <div class="char-body char-leaf">🌿</div>
+    <div class="char-name">Leafy</div>
+  </div>
+</div>
+
+<!-- Audio buttons -->
+<div class="audio-controls">
+  <button class="audio-btn play"  id="readBtn"      onclick="readWord()"   disabled>▶ Read word</button>
+  <button class="audio-btn spell" id="spellAloudBtn" onclick="spellAloud()" disabled>🔤 Spell aloud</button>
+</div>
+
+<!-- Fun fact -->
+<div class="fun-fact" id="funFact"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  WorldSpellBot — v1.0
+//  Supports: English, French, German, Spanish, Russian,
+//            Italian, Serbian (Cyrillic), Chinese (Mandarin)
+// ═══════════════════════════════════════════════════════════════
+
+// ── Put your Anthropic API key here for AI word lookup ──
+// Get one free at console.anthropic.com
+// Leave as 'YOUR_API_KEY' to use local word bank only
+const ANTHROPIC_API_KEY = 'YOUR_API_KEY';
+
+let currentLang = 'en';
+let currentWord  = '';
+let scores = { words: 0, streak: 0, stars: 0 };
+
+// ── Language config ──────────────────────────────────────────────
+const LANG_CONFIG = {
+  en: { name: 'English',   flag: '🇬🇧', tts: 'en-US', greeting: 'Hi! Tap me and say a word! 😊',     thinking: 'Hmm, let me think... 🤔',   listening: '🎤 Listening... say a word!',  readBtn: '▶ Read word', spellAloud: '🔤 Spell aloud' },
+  fr: { name: 'Français',  flag: '🇫🇷', tts: 'fr-FR', greeting: 'Appuie sur moi et dis un mot! 😊',  thinking: 'Hmm, laisse-moi réfléchir... 🤔', listening: "🎤 J'écoute... dis un mot!", readBtn: '▶ Lire le mot', spellAloud: '🔤 Épeler' },
+  de: { name: 'Deutsch',   flag: '🇩🇪', tts: 'de-DE', greeting: 'Tipp mich an und sag ein Wort! 😊', thinking: 'Hmm, lass mich nachdenken... 🤔', listening: '🎤 Ich höre... sag ein Wort!', readBtn: '▶ Vorlesen', spellAloud: '🔤 Buchstabieren' },
+  es: { name: 'Español',   flag: '🇪🇸', tts: 'es-ES', greeting: '¡Tócame y di una palabra! 😊',      thinking: 'Hmm, déjame pensar... 🤔',   listening: '🎤 Escuchando... ¡di una palabra!', readBtn: '▶ Leer palabra', spellAloud: '🔤 Deletrear' },
+  ru: { name: 'Русский',   flag: '🇷🇺', tts: 'ru-RU', greeting: 'Нажми меня и скажи слово! 😊',      thinking: 'Хмм, дай подумаю... 🤔',    listening: '🎤 Слушаю... скажи слово!',   readBtn: '▶ Прочитать', spellAloud: '🔤 Произнести' },
+  it: { name: 'Italiano',  flag: '🇮🇹', tts: 'it-IT', greeting: 'Toccami e di una parola! 😊',       thinking: 'Hmm, fammi pensare... 🤔',   listening: '🎤 Ascolto... di una parola!', readBtn: '▶ Leggi parola', spellAloud: '🔤 Compita' },
+  sr: { name: 'Српски',    flag: '🇷🇸', tts: 'sr-RS', greeting: 'Додирни ме и реци реч! 😊',         thinking: 'Хм, дај да размислим... 🤔', listening: '🎤 Слушам... реци реч!',      readBtn: '▶ Прочитај', spellAloud: '🔤 Слова по слово' },
+  zh: { name: '中文',       flag: '🇨🇳', tts: 'zh-CN', greeting: '点击我，说一个词！😊',               thinking: '嗯，让我想想... 🤔',         listening: '🎤 听着...说一个词！',          readBtn: '▶ 读单词', spellAloud: '🔤 拼写' },
+};
+
+const VOWELS = new Set('aeiouyéèêëàâîïôûùüäöüáéíóúñ'.split(''));
+
+// ── Word bank ────────────────────────────────────────────────────
+const WORD_DATA = {
+  en: {
+    apple:     { msg: 'A-P-P-L-E! 🍎 Double P!',       fact: 'There are over 7,500 varieties of apples!' },
+    banana:    { msg: 'B-A-N-A-N-A! 🍌 NAN in the middle!', fact: 'Bananas are technically berries!' },
+    cat:       { msg: 'C-A-T! 🐱 Just 3 letters!',     fact: 'Cats sleep up to 16 hours a day!' },
+    dog:       { msg: 'D-O-G! 🐶 3 letters!',           fact: 'Dogs smell 40x better than humans!' },
+    elephant:  { msg: 'E-L-E-P-H-A-N-T! 🐘 PH=F!',    fact: 'Elephants never forget!' },
+    fish:      { msg: 'F-I-S-H! 🐟 4 letters!',         fact: 'Fish have been on Earth 500 million years!' },
+    giraffe:   { msg: 'G-I-R-A-F-F-E! 🦒 Double F!',   fact: "A giraffe's tongue is 18 inches long!" },
+    happy:     { msg: 'H-A-P-P-Y! 😊 Double P!',        fact: 'Smiling releases happy brain chemicals!' },
+    lion:      { msg: 'L-I-O-N! 🦁 4 letters!',         fact: 'Lions sleep up to 20 hours a day!' },
+    moon:      { msg: 'M-O-O-N! 🌙 Double O!',          fact: 'The Moon moves away 1.5 inches every year!' },
+    rainbow:   { msg: 'R-A-I-N-B-O-W! 🌈 Rain+bow!',   fact: 'Rainbows are actually full circles!' },
+    star:      { msg: 'S-T-A-R! ⭐ 4 letters!',         fact: 'Our Sun is a medium-sized star!' },
+    sun:       { msg: 'S-U-N! ☀️ 3 letters!',           fact: 'Sunlight takes 8 minutes to reach Earth!' },
+    tiger:     { msg: 'T-I-G-E-R! 🐯 5 letters!',       fact: 'No two tigers have the same stripes!' },
+    umbrella:  { msg: 'U-M-B-R-E-L-L-A! ☂️ Double L!', fact: 'Umbrellas were first used for sun, not rain!' },
+    unicorn:   { msg: 'U-N-I-C-O-R-N! 🦄 Uni=one!',    fact: "The unicorn is Scotland's national animal!" },
+    water:     { msg: 'W-A-T-E-R! 💧 5 letters!',       fact: "71% of Earth's surface is covered in water!" },
+    whale:     { msg: 'W-H-A-L-E! 🐋 Silent E!',        fact: 'Blue whales are the largest animals ever!' },
+    zebra:     { msg: 'Z-E-B-R-A! 🦓 Starts with Z!',  fact: 'Every zebra has unique stripes!' },
+    butterfly: { msg: 'B-U-T-T-E-R-F-L-Y! 🦋 Double T!', fact: 'Butterflies taste with their feet!' },
+    chocolate: { msg: 'C-H-O-C-O-L-A-T-E! 🍫',         fact: '400 cocoa beans make one pound of chocolate!' },
+    dinosaur:  { msg: 'D-I-N-O-S-A-U-R! 🦕',           fact: 'Dinosaurs lived for 165 million years!' },
+    penguin:   { msg: 'P-E-N-G-U-I-N! 🐧',             fact: 'Penguins propose with a pebble!' },
+    strawberry:{ msg: 'S-T-R-A-W-B-E-R-R-Y! 🍓 Double R!', fact: 'Strawberries have seeds on the outside!' },
+    flower:    { msg: 'F-L-O-W-E-R! 🌸',               fact: 'The biggest flower can be 3 feet wide!' },
+    pizza:     { msg: 'P-I-Z-Z-A! 🍕 Double Z!',        fact: 'Pizza was invented in Naples, Italy!' },
+    school:    { msg: 'S-C-H-O-O-L! 🏫 Double O!',     fact: 'The oldest school was founded in 597 AD!' },
+    monkey:    { msg: 'M-O-N-K-E-Y! 🐒 Ends with KEY!', fact: 'Monkeys peel bananas from the bottom!' },
+    frog:      { msg: 'F-R-O-G! 🐸 4 letters!',         fact: 'Frogs drink water through their skin!' },
+    snow:      { msg: 'S-N-O-W! ❄️ 4 letters!',         fact: 'No two snowflakes are exactly alike!' },
+    wolf:      { msg: 'W-O-L-F! 🐺 4 letters!',         fact: 'Wolves howl to communicate across miles!' },
+    cake:      { msg: 'C-A-K-E! 🎂 Silent E!',          fact: 'Ancient Egyptians made the first cakes!' },
+    cloud:     { msg: 'C-L-O-U-D! ☁️ 5 letters!',      fact: 'Clouds can weigh over a million pounds!' },
+    music:     { msg: 'M-U-S-I-C! 🎵 5 letters!',       fact: 'Music activates more brain areas than anything else!' },
+    hello:     { msg: 'H-E-L-L-O! 👋 Double L!',        fact: 'Hello became popular as a phone greeting in 1877!' },
+    love:      { msg: 'L-O-V-E! ❤️ Silent E!',          fact: 'People say "I love you" 3x more in texting than speaking!' },
+    friend:    { msg: 'F-R-I-E-N-D! 👫',                fact: 'The word friend comes from Old English "freond"!' },
+  },
+
+  fr: {
+    pomme:      { msg: 'P-O-M-M-E! 🍎 Double M!',      fact: "Il existe plus de 7 500 variétés de pommes!" },
+    banane:     { msg: 'B-A-N-A-N-E! 🍌 NAN au milieu!', fact: 'La banane est techniquement une baie!' },
+    chat:       { msg: 'C-H-A-T! 🐱 T muet!',           fact: 'Les chats dorment 16 heures par jour!' },
+    chien:      { msg: 'C-H-I-E-N! 🐶 5 lettres!',      fact: 'Les chiens sentent 40x mieux que nous!' },
+    éléphant:   { msg: 'É-L-É-P-H-A-N-T! 🐘 PH=F!',   fact: "Les éléphants ne peuvent pas sauter!" },
+    poisson:    { msg: 'P-O-I-S-S-O-N! 🐟 Double S!',  fact: "Les poissons existent depuis 500 millions d'années!" },
+    girafe:     { msg: 'G-I-R-A-F-E! 🦒 Un seul F!',   fact: "La langue d'une girafe fait 45 cm!" },
+    lion:       { msg: 'L-I-O-N! 🦁 4 lettres!',        fact: 'Les lions dorment 20 heures par jour!' },
+    lune:       { msg: 'L-U-N-E! 🌙 E muet!',           fact: "La Lune s'éloigne de 4 cm par an!" },
+    étoile:     { msg: 'É-T-O-I-L-E! ⭐ Accent!',       fact: 'Notre Soleil est une étoile de taille moyenne!' },
+    soleil:     { msg: 'S-O-L-E-I-L! ☀️ 6 lettres!',   fact: 'La lumière du soleil met 8 minutes à arriver!' },
+    tigre:      { msg: 'T-I-G-R-E! 🐯 E muet!',         fact: "Aucun tigre n'a les mêmes rayures!" },
+    licorne:    { msg: 'L-I-C-O-R-N-E! 🦄 E muet!',    fact: "La licorne est l'animal national de l'Écosse!" },
+    eau:        { msg: 'E-A-U! 💧 3 lettres, 2 voyelles!', fact: "71% de la Terre est couverte d'eau!" },
+    baleine:    { msg: 'B-A-L-E-I-N-E! 🐋 7 lettres!', fact: 'La baleine bleue est le plus grand animal!' },
+    zèbre:      { msg: 'Z-È-B-R-E! 🦓 Accent grave!',  fact: 'Chaque zèbre a des rayures uniques!' },
+    papillon:   { msg: 'P-A-P-I-L-L-O-N! 🦋 Double L!', fact: 'Les papillons goûtent avec leurs pattes!' },
+    chocolat:   { msg: 'C-H-O-C-O-L-A-T! 🍫',          fact: '400 fèves font 500g de chocolat!' },
+    pingouin:   { msg: 'P-I-N-G-O-U-I-N! 🐧',          fact: 'Les pingouins offrent un caillou en cadeau!' },
+    fleur:      { msg: 'F-L-E-U-R! 🌸 5 lettres!',      fact: 'La plus grande fleur fait 90 cm de large!' },
+    pizza:      { msg: 'P-I-Z-Z-A! 🍕 Double Z!',       fact: 'La pizza vient de Naples en Italie!' },
+    arc:        { msg: 'A-R-C! 🌈 3 lettres!',          fact: "L'arc-en-ciel est en réalité un cercle complet!" },
+    bonjour:    { msg: 'B-O-N-J-O-U-R! 👋 7 lettres!', fact: 'Bonjour vient de "bon" + "jour"!' },
+    amour:      { msg: 'A-M-O-U-R! ❤️ 5 lettres!',     fact: 'Le mot amour vient du latin "amor"!' },
+    ami:        { msg: 'A-M-I! 👫 3 lettres!',           fact: 'Les meilleurs amis se souviennent des petits détails!' },
+  },
+
+  de: {
+    apfel:      { msg: 'A-P-F-E-L! 🍎 5 Buchstaben!',  fact: 'Es gibt über 7.500 Apfelsorten!' },
+    katze:      { msg: 'K-A-T-Z-E! 🐱 E am Ende!',     fact: 'Katzen schlafen bis zu 16 Stunden am Tag!' },
+    hund:       { msg: 'H-U-N-D! 🐶 4 Buchstaben!',    fact: 'Hunde riechen 40x besser als Menschen!' },
+    elefant:    { msg: 'E-L-E-F-A-N-T! 🐘',            fact: 'Elefanten vergessen nie!' },
+    fisch:      { msg: 'F-I-S-C-H! 🐟 5 Buchstaben!',  fact: 'Fische gibt es seit 500 Millionen Jahren!' },
+    löwe:       { msg: 'L-Ö-W-E! 🦁 Umlaut Ö!',        fact: 'Löwen schlafen bis zu 20 Stunden!' },
+    mond:       { msg: 'M-O-N-D! 🌙 4 Buchstaben!',    fact: 'Der Mond entfernt sich 4 cm pro Jahr!' },
+    stern:      { msg: 'S-T-E-R-N! ⭐ 5 Buchstaben!',  fact: 'Unsere Sonne ist ein mittelgroßer Stern!' },
+    sonne:      { msg: 'S-O-N-N-E! ☀️ Double N!',      fact: 'Sonnenlicht braucht 8 Minuten zur Erde!' },
+    tiger:      { msg: 'T-I-G-E-R! 🐯 5 Buchstaben!',  fact: 'Kein Tiger hat die gleichen Streifen!' },
+    wasser:     { msg: 'W-A-S-S-E-R! 💧 Double S!',    fact: '71% der Erde ist mit Wasser bedeckt!' },
+    wal:        { msg: 'W-A-L! 🐋 3 Buchstaben!',       fact: 'Blauwale sind die größten Tiere aller Zeiten!' },
+    zebra:      { msg: 'Z-E-B-R-A! 🦓 Beginnt mit Z!', fact: 'Jedes Zebra hat einzigartige Streifen!' },
+    schmetterling: { msg: 'S-C-H-M-E-T-T-E-R-L-I-N-G! 🦋', fact: 'Schmetterlinge schmecken mit ihren Füßen!' },
+    schokolade: { msg: 'S-C-H-O-K-O-L-A-D-E! 🍫',     fact: '400 Kakaobohnen ergeben ein Pfund Schokolade!' },
+    pinguin:    { msg: 'P-I-N-G-U-I-N! 🐧',            fact: 'Pinguine machen mit Kieselsteinen einen Heiratsantrag!' },
+    blume:      { msg: 'B-L-U-M-E! 🌸 5 Buchstaben!',  fact: 'Die größte Blume ist fast 1 Meter breit!' },
+    pizza:      { msg: 'P-I-Z-Z-A! 🍕 Double Z!',      fact: 'Pizza wurde in Neapel, Italien erfunden!' },
+    regenbogen: { msg: 'R-E-G-E-N-B-O-G-E-N! 🌈',     fact: 'Regenbögen sind eigentlich vollständige Kreise!' },
+    hallo:      { msg: 'H-A-L-L-O! 👋 Double L!',      fact: 'Hallo ist eine der bekanntesten Begrüßungen!' },
+    liebe:      { msg: 'L-I-E-B-E! ❤️ 5 Buchstaben!', fact: 'Das Wort Liebe gibt es seit dem Mittelhochdeutschen!' },
+    freund:     { msg: 'F-R-E-U-N-D! 👫',              fact: 'Freundschaft ist das wertvollste Gut!' },
+    schnee:     { msg: 'S-C-H-N-E-E! ❄️ Double E!',    fact: 'Keine zwei Schneeflocken sind gleich!' },
+    musik:      { msg: 'M-U-S-I-K! 🎵 5 Buchstaben!',  fact: 'Musik aktiviert mehr Gehirnbereiche als alles andere!' },
+  },
+
+  es: {
+    manzana:    { msg: 'M-A-N-Z-A-N-A! 🍎 7 letras!',  fact: '¡Hay más de 7.500 variedades de manzanas!' },
+    banana:     { msg: 'B-A-N-A-N-A! 🍌 NAN en el medio!', fact: '¡El plátano es técnicamente una baya!' },
+    gato:       { msg: 'G-A-T-O! 🐱 4 letras!',         fact: '¡Los gatos duermen hasta 16 horas al día!' },
+    perro:      { msg: 'P-E-R-R-O! 🐶 RR doble!',       fact: '¡Los perros huelen 40 veces mejor que nosotros!' },
+    elefante:   { msg: 'E-L-E-F-A-N-T-E! 🐘',          fact: '¡Los elefantes nunca olvidan!' },
+    pez:        { msg: 'P-E-Z! 🐟 3 letras!',            fact: '¡Los peces existen desde hace 500 millones de años!' },
+    jirafa:     { msg: 'J-I-R-A-F-A! 🦒 J suena H!',   fact: '¡La lengua de una jirafa mide 45 cm!' },
+    sol:        { msg: 'S-O-L! ☀️ Solo 3 letras!',      fact: '¡La luz del sol tarda 8 minutos en llegar!' },
+    luna:       { msg: 'L-U-N-A! 🌙 4 letras!',         fact: '¡La Luna se aleja 4 cm cada año!' },
+    estrella:   { msg: 'E-S-T-R-E-L-L-A! ⭐ Double L!', fact: '¡Nuestro Sol es una estrella de tamaño medio!' },
+    tigre:      { msg: 'T-I-G-R-E! 🐯 5 letras!',       fact: '¡Ningún tigre tiene las mismas rayas!' },
+    agua:       { msg: 'A-G-U-A! 💧 4 letras!',         fact: '¡El 71% de la Tierra está cubierto de agua!' },
+    arcoíris:   { msg: 'A-R-C-O-Í-R-I-S! 🌈 Acento!',  fact: '¡Los arcoíris son en realidad círculos completos!' },
+    mariposa:   { msg: 'M-A-R-I-P-O-S-A! 🦋 8 letras!', fact: '¡Las mariposas prueban con sus patas!' },
+    chocolate:  { msg: 'C-H-O-C-O-L-A-T-E! 🍫',        fact: '¡400 granos de cacao hacen una libra de chocolate!' },
+    pingüino:   { msg: 'P-I-N-G-Ü-I-N-O! 🐧 Diéresis!', fact: '¡Los pingüinos proponen con una piedra!' },
+    flor:       { msg: 'F-L-O-R! 🌸 4 letras!',         fact: '¡La flor más grande mide casi 1 metro!' },
+    pizza:      { msg: 'P-I-Z-Z-A! 🍕 Doble Z!',        fact: '¡La pizza fue inventada en Nápoles, Italia!' },
+    nieve:      { msg: 'N-I-E-V-E! ❄️ 5 letras!',       fact: '¡Ningún copo de nieve es exactamente igual!' },
+    hola:       { msg: 'H-O-L-A! 👋 4 letras!',          fact: '¡Hola es una de las palabras más felices!' },
+    amor:       { msg: 'A-M-O-R! ❤️ 4 letras!',         fact: '¡La palabra amor viene del latín "amor"!' },
+    amigo:      { msg: 'A-M-I-G-O! 👫 5 letras!',       fact: '¡Los mejores amigos se recuerdan en los detalles!' },
+    música:     { msg: 'M-Ú-S-I-C-A! 🎵 Acento!',       fact: '¡La música activa más áreas del cerebro que cualquier otra cosa!' },
+  },
+
+  ru: {
+    яблоко:  { msg: 'Я-Б-Л-О-К-О! 🍎 6 букв!',        fact: 'Существует более 7500 сортов яблок!' },
+    банан:   { msg: 'Б-А-Н-А-Н! 🍌 5 букв!',            fact: 'Банан технически является ягодой!' },
+    кот:     { msg: 'К-О-Т! 🐱 3 буквы!',               fact: 'Коты спят до 16 часов в день!' },
+    собака:  { msg: 'С-О-Б-А-К-А! 🐶 6 букв!',         fact: 'Собаки нюхают в 40 раз лучше людей!' },
+    слон:    { msg: 'С-Л-О-Н! 🐘 4 буквы!',             fact: 'Слоны никогда не забывают!' },
+    рыба:    { msg: 'Р-Ы-Б-А! 🐟 4 буквы!',             fact: 'Рыбы существуют 500 миллионов лет!' },
+    жираф:   { msg: 'Ж-И-Р-А-Ф! 🦒 5 букв!',           fact: 'Язык жирафа длиной 45 см!' },
+    лев:     { msg: 'Л-Е-В! 🦁 3 буквы!',               fact: 'Львы спят до 20 часов в день!' },
+    луна:    { msg: 'Л-У-Н-А! 🌙 4 буквы!',             fact: 'Луна удаляется на 4 см в год!' },
+    звезда:  { msg: 'З-В-Е-З-Д-А! ⭐ 6 букв!',         fact: 'Наше Солнце — звезда среднего размера!' },
+    солнце:  { msg: 'С-О-Л-Н-Ц-Е! ☀️ 6 букв!',        fact: 'Солнечный свет достигает Земли за 8 минут!' },
+    тигр:    { msg: 'Т-И-Г-Р! 🐯 4 буквы!',             fact: 'У каждого тигра уникальные полоски!' },
+    кит:     { msg: 'К-И-Т! 🐋 3 буквы!',               fact: 'Синий кит — самое большое животное!' },
+    зебра:   { msg: 'З-Е-Б-Р-А! 🦓 5 букв!',            fact: 'У каждой зебры уникальные полосы!' },
+    бабочка: { msg: 'Б-А-Б-О-Ч-К-А! 🦋 7 букв!',       fact: 'Бабочки пробуют пищу лапками!' },
+    шоколад: { msg: 'Ш-О-К-О-Л-А-Д! 🍫 7 букв!',       fact: '400 зёрен какао — это 500 г шоколада!' },
+    пингвин: { msg: 'П-И-Н-Г-В-И-Н! 🐧 7 букв!',       fact: 'Пингвины делают предложение с камешком!' },
+    цветок:  { msg: 'Ц-В-Е-Т-О-К! 🌸 6 букв!',         fact: 'Самый большой цветок почти 1 метр!' },
+    радуга:  { msg: 'Р-А-Д-У-Г-А! 🌈 6 букв!',         fact: 'Радуга — это на самом деле полный круг!' },
+    снег:    { msg: 'С-Н-Е-Г! ❄️ 4 буквы!',             fact: 'Нет двух одинаковых снежинок!' },
+    привет:  { msg: 'П-Р-И-В-Е-Т! 👋 6 букв!',         fact: 'Привет — одно из самых тёплых слов!' },
+    любовь:  { msg: 'Л-Ю-Б-О-В-Ь! ❤️ Мягкий знак!',   fact: 'Слово любовь пришло из старославянского!' },
+    друг:    { msg: 'Д-Р-У-Г! 👫 4 буквы!',             fact: 'Настоящих друзей в жизни немного!' },
+    музыка:  { msg: 'М-У-З-Ы-К-А! 🎵 6 букв!',         fact: 'Музыка активирует больше зон мозга, чем что-либо!' },
+  },
+
+  it: {
+    mela:       { msg: 'M-E-L-A! 🍎 4 lettere!',        fact: 'Ci sono oltre 7.500 varietà di mele!' },
+    banana:     { msg: 'B-A-N-A-N-A! 🍌 NAN in mezzo!', fact: 'La banana è tecnicamente una bacca!' },
+    gatto:      { msg: 'G-A-T-T-O! 🐱 Doppia T!',       fact: 'I gatti dormono fino a 16 ore al giorno!' },
+    cane:       { msg: 'C-A-N-E! 🐶 E finale muto!',    fact: 'I cani annusano 40 volte meglio degli umani!' },
+    elefante:   { msg: 'E-L-E-F-A-N-T-E! 🐘',          fact: 'Gli elefanti non dimenticano mai!' },
+    pesce:      { msg: 'P-E-S-C-E! 🐟 5 lettere!',      fact: 'I pesci esistono da 500 milioni di anni!' },
+    giraffa:    { msg: 'G-I-R-A-F-F-A! 🦒 Doppia F!',  fact: 'La lingua della giraffa è lunga 45 cm!' },
+    leone:      { msg: 'L-E-O-N-E! 🦁 E finale!',       fact: 'I leoni dormono fino a 20 ore al giorno!' },
+    luna:       { msg: 'L-U-N-A! 🌙 4 lettere!',        fact: 'La Luna si allontana di 4 cm ogni anno!' },
+    stella:     { msg: 'S-T-E-L-L-A! ⭐ Doppia L!',    fact: 'Il nostro Sole è una stella di media grandezza!' },
+    sole:       { msg: 'S-O-L-E! ☀️ E finale!',         fact: 'La luce del sole impiega 8 minuti a raggiungerci!' },
+    tigre:      { msg: 'T-I-G-R-E! 🐯 E finale!',       fact: 'Nessuna tigre ha le stesse strisce!' },
+    acqua:      { msg: 'A-C-Q-U-A! 💧 QU insieme!',    fact: "Il 71% della Terra è coperto d'acqua!" },
+    balena:     { msg: 'B-A-L-E-N-A! 🐋 6 lettere!',   fact: 'La balena blu è il più grande animale di sempre!' },
+    farfalla:   { msg: 'F-A-R-F-A-L-L-A! 🦋 Doppia L!', fact: 'Le farfalle sentono il gusto con i piedi!' },
+    cioccolato: { msg: 'C-I-O-C-C-O-L-A-T-O! 🍫',      fact: '400 chicchi di cacao = 500g di cioccolato!' },
+    pinguino:   { msg: 'P-I-N-G-U-I-N-O! 🐧',          fact: 'I pinguini fanno la proposta con un sassolino!' },
+    fiore:      { msg: 'F-I-O-R-E! 🌸 E finale!',       fact: 'Il fiore più grande è lungo quasi 1 metro!' },
+    pizza:      { msg: 'P-I-Z-Z-A! 🍕 Doppia Z!',       fact: 'La pizza è stata inventata a Napoli!' },
+    arcobaleno: { msg: 'A-R-C-O-B-A-L-E-N-O! 🌈',      fact: "L'arcobaleno è in realtà un cerchio completo!" },
+    ciao:       { msg: 'C-I-A-O! 👋 4 lettere!',        fact: '"Ciao" si usa sia per salutare che per congedarsi!' },
+    amore:      { msg: 'A-M-O-R-E! ❤️ E finale!',      fact: 'La parola amore viene dal latino "amor"!' },
+    amico:      { msg: 'A-M-I-C-O! 👫 5 lettere!',     fact: 'I migliori amici ricordano i piccoli dettagli!' },
+    musica:     { msg: 'M-U-S-I-C-A! 🎵 6 lettere!',   fact: 'La musica attiva più aree del cervello di qualsiasi altra cosa!' },
+  },
+
+  sr: {
+    јабука:   { msg: 'Ј-А-Б-У-К-А! 🍎 6 слова!',       fact: 'Постоји преко 7.500 врста јабука!' },
+    банана:   { msg: 'Б-А-Н-А-Н-А! 🍌 НАН у средини!', fact: 'Банана је технички бобица!' },
+    мачка:    { msg: 'М-А-Ч-К-А! 🐱 5 слова!',          fact: 'Мачке спавају до 16 сати дневно!' },
+    пас:      { msg: 'П-А-С! 🐶 3 слова!',               fact: 'Пси мирише 40 пута боље од нас!' },
+    слон:     { msg: 'С-Л-О-Н! 🐘 4 слова!',             fact: 'Слонови никад не заборављају!' },
+    риба:     { msg: 'Р-И-Б-А! 🐟 4 слова!',             fact: 'Рибе постоје 500 милиона година!' },
+    жирафа:   { msg: 'Ж-И-Р-А-Ф-А! 🦒 6 слова!',       fact: 'Жирафин језик је дугачак 45 цм!' },
+    лав:      { msg: 'Л-А-В! 🦁 3 слова!',               fact: 'Лавови спавају до 20 сати дневно!' },
+    месец:    { msg: 'М-Е-С-Е-Ц! 🌙 5 слова!',          fact: 'Месец се удаљава 4 цм сваке године!' },
+    звезда:   { msg: 'З-В-Е-З-Д-А! ⭐ 6 слова!',        fact: 'Наше Сунце је звезда средње величине!' },
+    сунце:    { msg: 'С-У-Н-Ц-Е! ☀️ 5 слова!',         fact: 'Сунчева светлост стиже за 8 минута!' },
+    тигар:    { msg: 'Т-И-Г-А-Р! 🐯 5 слова!',          fact: 'Сваки тигар има јединствене пруге!' },
+    вода:     { msg: 'В-О-Д-А! 💧 4 слова!',             fact: '71% Земље је прекривено водом!' },
+    кит:      { msg: 'К-И-Т! 🐋 3 слова!',               fact: 'Плави кит је највећа животиња икад!' },
+    зебра:    { msg: 'З-Е-Б-Р-А! 🦓 5 слова!',           fact: 'Свака зебра има јединствене пруге!' },
+    лептир:   { msg: 'Л-Е-П-Т-И-Р! 🦋 6 слова!',       fact: 'Лептири кусају храну ногама!' },
+    чоколада: { msg: 'Ч-О-К-О-Л-А-Д-А! 🍫 8 слова!',   fact: '400 зрна какаа = 500г чоколаде!' },
+    пингвин:  { msg: 'П-И-Н-Г-В-И-Н! 🐧 7 слова!',     fact: 'Пингвини проседе са каменчићем!' },
+    цвет:     { msg: 'Ц-В-Е-Т! 🌸 4 слова!',             fact: 'Највећи цвет је скоро 1 метар!' },
+    дуга:     { msg: 'Д-У-Г-А! 🌈 4 слова!',             fact: 'Дуга је заправо пун круг!' },
+    снег:     { msg: 'С-Н-Е-Г! ❄️ 4 слова!',             fact: 'Нема два иста пахуљица!' },
+    здраво:   { msg: 'З-Д-Р-А-В-О! 👋 6 слова!',        fact: 'Здраво је топла и радосна реч!' },
+    љубав:    { msg: 'Љ-У-Б-А-В! ❤️ 5 слова!',          fact: 'Реч љубав је стара колико и српски језик!' },
+    пријатељ: { msg: 'П-Р-И-Ј-А-Т-Е-Љ! 👫 8 слова!',  fact: 'Прави пријатељи се памте заувек!' },
+    музика:   { msg: 'М-У-З-И-К-А! 🎵 6 слова!',        fact: 'Музика активира више делова мозга него ишта друго!' },
+  },
+
+  zh: {
+    '苹果': { msg: '苹-果! 🍎 2个字!',       fact: '苹果有超过7500个品种！' },
+    '香蕉': { msg: '香-蕉! 🍌 2个字!',       fact: '香蕉技术上是一种浆果！' },
+    '猫':   { msg: '猫! 🐱 1个字!',          fact: '猫每天睡16个小时！' },
+    '狗':   { msg: '狗! 🐶 1个字!',          fact: '狗的嗅觉比人强40倍！' },
+    '大象': { msg: '大-象! 🐘 2个字!',       fact: '大象从不忘记！' },
+    '鱼':   { msg: '鱼! 🐟 1个字!',          fact: '鱼类存在了5亿年！' },
+    '长颈鹿': { msg: '长-颈-鹿! 🦒 3个字!', fact: '长颈鹿的舌头有45厘米长！' },
+    '狮子': { msg: '狮-子! 🦁 2个字!',       fact: '狮子每天睡多达20小时！' },
+    '月亮': { msg: '月-亮! 🌙 2个字!',       fact: '月亮每年远离我们4厘米！' },
+    '星星': { msg: '星-星! ⭐ 2个字!',       fact: '我们的太阳是一颗中等大小的星星！' },
+    '太阳': { msg: '太-阳! ☀️ 2个字!',       fact: '阳光到达地球需要8分钟！' },
+    '老虎': { msg: '老-虎! 🐯 2个字!',       fact: '没有两只老虎有相同的条纹！' },
+    '水':   { msg: '水! 💧 1个字!',          fact: '地球71%都被水覆盖！' },
+    '鲸鱼': { msg: '鲸-鱼! 🐋 2个字!',      fact: '蓝鲸是有史以来最大的动物！' },
+    '斑马': { msg: '斑-马! 🦓 2个字!',       fact: '每匹斑马的条纹都是独一无二的！' },
+    '蝴蝶': { msg: '蝴-蝶! 🦋 2个字!',       fact: '蝴蝶用脚品尝食物！' },
+    '巧克力': { msg: '巧-克-力! 🍫 3个字!', fact: '400颗可可豆可以制成500克巧克力！' },
+    '企鹅': { msg: '企-鹅! 🐧 2个字!',       fact: '企鹅用鹅卵石求婚！' },
+    '花':   { msg: '花! 🌸 1个字!',          fact: '世界上最大的花将近1米宽！' },
+    '彩虹': { msg: '彩-虹! 🌈 2个字!',       fact: '彩虹其实是完整的圆！' },
+    '雪':   { msg: '雪! ❄️ 1个字!',          fact: '没有两片雪花是完全相同的！' },
+    '你好': { msg: '你-好! 👋 2个字!',       fact: '"你好"是最常用的中文问候语！' },
+    '爱':   { msg: '爱! ❤️ 1个字!',          fact: '"爱"是汉字中最美丽的字之一！' },
+    '朋友': { msg: '朋-友! 👫 2个字!',       fact: '朋友是人生中最宝贵的财富！' },
+    '音乐': { msg: '音-乐! 🎵 2个字!',       fact: '音乐能激活比任何其他活动更多的大脑区域！' },
+  },
+};
+
+// ── AI Agent: enriches any unknown word via Claude API ───────────
+const wordCache = {};
+
+function wordFallback(word, lang) {
+  const letters = word.toUpperCase().split('').join('-');
+  const cfg = LANG_CONFIG[lang];
+  const factMap = { en:'Great word!', fr:'Super mot!', de:'Tolles Wort!', es:'¡Gran palabra!', ru:'Отличное слово!', it:'Ottima parola!', sr:'Одлична реч!', zh:'很棒的词！' };
+  return { word, msg: `${letters}! 🌟`, fact: factMap[lang] || 'Great word!' };
+}
+
+function getWordData(word, lang) {
+  const key = word.toLowerCase().trim();
+  const cacheKey = key + '|' + lang;
+  if (wordCache[cacheKey]) return wordCache[cacheKey];
+  const data = WORD_DATA[lang];
+  if (data && data[key]) return { word: key, ...data[key] };
+  // Chinese: try direct lookup including traditional
+  if (lang === 'zh' && data && data[word]) return { word, ...data[word] };
+  return wordFallback(key, lang);
+}
+
+function enrichWordAsync(word, lang) {
+  const key = word.toLowerCase().trim();
+  const cacheKey = key + '|' + lang;
+  if (wordCache[cacheKey]) return;
+  const data = WORD_DATA[lang];
+  if (data && (data[key] || data[word])) return;
+  if (!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY === 'YOUR_API_KEY') return;
+
+  const cfg = LANG_CONFIG[lang];
+  const systemPrompt = `You are a spelling teacher for young children. 
+The user says a word in ${cfg.name}. 
+Return ONLY valid JSON (no markdown, no backticks):
+{"word":"<correct ${cfg.name} spelling>","msg":"<hyphenated letters with spaces like C-A-T! + 1 emoji + short note>","fact":"<super fun kid fact about the word in ${cfg.name}, max 10 words>"}
+For non-Latin scripts (Russian, Serbian, Chinese) use the actual script letters separated by hyphens.`;
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: word }]
+    })
+  })
+  .then(r => r.ok ? r.json() : null)
+  .then(data => {
+    if (!data) return;
+    const raw = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+    const result = {
+      word:  (parsed.word || word).trim(),
+      msg:   parsed.msg  || wordFallback(word, lang).msg,
+      fact:  parsed.fact || wordFallback(word, lang).fact,
+    };
+    wordCache[cacheKey] = result;
+    const wk = result.word.toLowerCase();
+    if (currentWord === key || currentWord === wk) {
+      document.getElementById('funFact').textContent   = '💡 ' + result.fact;
+      document.getElementById('bubbleText').textContent = result.msg;
+      showLetters(result.word, lang);
+      currentWord = result.word;
+    }
+  }).catch(() => {});
+}
+
+// ── NLU: strip filler words and extract the target word ──────────
+const STRIP_PATTERNS = [
+  /^(hey\s+)?(world\s*spell\s*bot|worldspellbot|spell\s*bot|spellbot)[,\s]*/i,
+  /(can\s+you|could\s+you|please|will\s+you)/gi,
+  /(how\s+(do\s+you|to|do\s+i)\s+spell)/gi,
+  /(spell\s+out|spell\s+the\s+word|spell)/gi,
+  /(what\s+is\s+the\s+spelling\s+of|spelling\s+of)/gi,
+  /(teach\s+me|show\s+me|tell\s+me|help\s+me)/gi,
+  /(the\s+word|a\s+word|word)/gi,
+  /(what\s+is|what's|how\s+is)/gi,
+  /(hey|hi|hello|ok|okay|um+|uh+|er+)\b/gi,
+  /[?!.,]/g,
+];
+
+function parseTranscript(t) {
+  let text = t.toLowerCase().trim();
+  for (const p of STRIP_PATTERNS) text = text.replace(p, ' ');
+  text = text.replace(/\s+/, ' ').trim();
+  const words = text.split(' ').filter(w => w.length >= 1);
+  if (!words.length) return null;
+  return words[words.length - 1];
+}
+
+function handleVoiceInput(transcript) {
+  // For CJK languages, use the transcript more directly
+  if (currentLang === 'zh' || currentLang === 'ru' || currentLang === 'sr') {
+    const trimmed = transcript.trim();
+    if (trimmed) { doSpell(trimmed); return; }
+  }
+  const word = parseTranscript(transcript);
+  if (!word) {
+    const msgs = { en: 'Which word? 😅', fr: 'Quel mot? 😅', de: 'Welches Wort? 😅', es: '¿Qué palabra? 😅', ru: 'Какое слово? 😅', it: 'Quale parola? 😅', sr: 'Која реч? 😅', zh: '哪个词？😅' };
+    setBubble(msgs[currentLang] || 'Which word? 😅');
+    return;
+  }
+  doSpell(word);
+}
+
+// ── Core spell ───────────────────────────────────────────────────
+function doSpell(word) {
+  if (!word) return;
+  cancelSpeech();
+  stopMic();
+
+  const data = getWordData(word.toLowerCase().trim(), currentLang);
+  currentWord = data.word;
+
+  setBotState('thinking');
+  const cfg = LANG_CONFIG[currentLang];
+  setBubble(cfg.thinking);
+  clearLetters();
+  document.getElementById('funFact').classList.remove('visible');
+
+  setTimeout(() => {
+    setBotState('speaking');
+    setBubble(data.msg);
+    showLetters(data.word, currentLang);
+    document.getElementById('funFact').textContent = '💡 ' + data.fact;
+    document.getElementById('funFact').classList.add('visible');
+    document.getElementById('readBtn').disabled      = false;
+    document.getElementById('spellAloudBtn').disabled = false;
+    scores.words++;
+    scores.streak++;
+    if (scores.words % 3 === 0) { scores.stars++; popStar(); }
+    updateScore();
+    enrichWordAsync(data.word, currentLang);
+    spellAloudThen(() => setBotState(''));
+  }, 400);
+}
+
+// ── Language switch — always FULL RESET ─────────────────────────
+function setLang(lang) {
+  cancelSpeech();
+  stopMic();
+  currentLang = lang;
+  currentWord  = '';
+
+  // Update EN button active state
+  const enBtn = document.getElementById('enBtn');
+  enBtn.classList.toggle('active', lang === 'en');
+
+  // Update globe button label
+  const cfg = LANG_CONFIG[lang];
+  const label = document.getElementById('selectedLangLabel');
+  const globeBtn = document.getElementById('globeBtn');
+  if (lang === 'en') {
+    label.textContent = 'Choose language…';
+    globeBtn.style.borderColor = '';
+  } else {
+    label.textContent = cfg.flag + ' ' + cfg.name;
+    globeBtn.style.borderColor = '#c77dff';
+    // mark dropdown option
+    document.querySelectorAll('.lang-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.textContent.includes(cfg.name));
+    });
+  }
+
+  closeDropdown();
+
+  // Full reset
+  clearLetters();
+  document.getElementById('funFact').classList.remove('visible');
+  document.getElementById('funFact').textContent = '';
+  document.getElementById('readBtn').disabled      = true;
+  document.getElementById('spellAloudBtn').disabled = true;
+  document.getElementById('readBtn').textContent       = cfg.readBtn;
+  document.getElementById('spellAloudBtn').textContent  = cfg.spellAloud;
+
+  setBotState('');
+  setBubble(cfg.greeting);
+
+  // Update scores label language
+  updateScore();
+}
+
+// ── Dropdown ─────────────────────────────────────────────────────
+function toggleDropdown() {
+  const dd  = document.getElementById('langDropdown');
+  const btn = document.getElementById('globeBtn');
+  const open = dd.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+function closeDropdown() {
+  document.getElementById('langDropdown').classList.remove('open');
+  document.getElementById('globeBtn').classList.remove('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.globe-dropdown-wrap')) closeDropdown();
+});
+
+// ── Letter display ────────────────────────────────────────────────
+function showLetters(word, lang) {
+  const container = document.getElementById('letterDisplay');
+  container.innerHTML = '';
+  const isCJK = lang === 'zh';
+
+  word.split('').forEach((ch, i) => {
+    const box = document.createElement('div');
+    if (ch === ' ') {
+      box.className = 'letter-box space';
+    } else {
+      const lower = ch.toLowerCase();
+      const isCyrillic = /[\u0400-\u04FF]/.test(ch);
+      const isChinese  = /[\u4E00-\u9FFF]/.test(ch);
+      const isAccent   = /[àáâãäåæçèéêëìíîïòóôõöùúûüýéčšžđćž]/i.test(ch);
+      const isVowel    = VOWELS.has(lower) && !isAccent;
+
+      if (isChinese)        box.className = 'letter-box special';
+      else if (isCyrillic)  box.className = 'letter-box';
+      else if (isAccent)    box.className = 'letter-box accent';
+      else if (isVowel)     box.className = 'letter-box vowel';
+      else                  box.className = 'letter-box';
+
+      box.textContent = isCJK ? ch : ch.toUpperCase();
+      if (isChinese) box.style.fontSize = '1.35rem';
+      box.style.animationDelay = (i * 0.07) + 's';
+    }
+    container.appendChild(box);
+  });
+}
+
+function clearLetters() {
+  document.getElementById('letterDisplay').innerHTML = '';
+}
+
+// ── Score ─────────────────────────────────────────────────────────
+function updateScore() {
+  document.getElementById('scoreWords').textContent  = scores.words;
+  document.getElementById('scoreStreak').textContent = scores.streak;
+  document.getElementById('scoreStars').textContent  = '⭐'.repeat(Math.min(scores.stars, 5)) || '⭐';
+}
+
+function popStar() {
+  const el = document.createElement('div');
+  el.className = 'star-pop';
+  el.textContent = '⭐';
+  el.style.left = (30 + Math.random() * 40) + 'vw';
+  el.style.top  = '40vh';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+}
+
+// ── Bot state ─────────────────────────────────────────────────────
+function setBubble(text) {
+  document.getElementById('bubbleText').textContent = text;
+}
+
+function setBotState(state) {
+  const bot = document.getElementById('botFace');
+  bot.className = 'bot-face' + (state ? ' ' + state : '');
+  const map = { '': 'mouth-idle', speaking: 'mouth-speaking', thinking: 'mouth-thinking', listening: 'mouth-listening' };
+  ['mouth-idle','mouth-speaking','mouth-thinking','mouth-listening'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = 'bot-mouth' + (id === map[state || ''] ? ' active' : '');
+  });
+  const pL = document.getElementById('pupilL');
+  const pR = document.getElementById('pupilR');
+  if (pL && pR) {
+    const cy = state === 'thinking' ? '33' : state === 'listening' ? '36' : '35';
+    pL.setAttribute('cy', cy); pR.setAttribute('cy', cy);
+  }
+  if (state !== 'speaking') stopMouthTalk();
+  const hint = document.getElementById('tapHint');
+  if (hint) hint.style.opacity = (!state || state === '') ? '1' : '0';
+}
+
+// ── Mouth animation ───────────────────────────────────────────────
+let mouthTimer = null, mouthOpen = false;
+function startMouthTalk() {
+  if (mouthTimer) return;
+  mouthTimer = setInterval(() => {
+    mouthOpen = !mouthOpen;
+    const lower  = document.getElementById('mouth-lower');
+    const tongue = document.getElementById('mouth-tongue');
+    if (lower)  lower.setAttribute('d', mouthOpen ? 'M28 50 Q40 64 52 50' : 'M28 50 Q40 58 52 50');
+    if (tongue) tongue.setAttribute('opacity', mouthOpen ? '0.9' : '0');
+  }, 180);
+}
+function stopMouthTalk() {
+  if (mouthTimer) { clearInterval(mouthTimer); mouthTimer = null; }
+  const lower  = document.getElementById('mouth-lower');
+  const tongue = document.getElementById('mouth-tongue');
+  if (lower)  lower.setAttribute('d', 'M28 50 Q40 58 52 50');
+  if (tongue) tongue.setAttribute('opacity', '0');
+}
+
+// ── TTS ───────────────────────────────────────────────────────────
+const synth = window.speechSynthesis;
+let preferredVoice = {};
+
+function loadVoices() {
+  if (!synth) return;
+  const all = synth.getVoices();
+  if (!all.length) return;
+  const rank = v => (/natural|enhanced|premium/i.test(v.name) ? 10 : 0) + (/google/i.test(v.name) ? 5 : 0);
+  Object.keys(LANG_CONFIG).forEach(lang => {
+    const tts = LANG_CONFIG[lang].tts;
+    const base = tts.split('-')[0];
+    preferredVoice[lang] = all
+      .filter(v => v.lang.startsWith(base))
+      .sort((a, b) => rank(b) - rank(a))[0] || null;
+  });
+}
+if (synth) { synth.onvoiceschanged = loadVoices; loadVoices(); }
+
+function cancelSpeech() {
+  if (!synth) return;
+  synth.cancel();
+  stopMouthTalk();
+}
+
+function speak(text, lang, rate, pitch, onDone) {
+  if (!synth) { if (onDone) onDone(); return; }
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang  = LANG_CONFIG[lang]?.tts || 'en-US';
+  utt.rate  = rate  || 0.88;
+  utt.pitch = pitch || 1.1;
+  const v = preferredVoice[lang] || preferredVoice.en;
+  if (v) utt.voice = v;
+  let finished = false;
+  const finish = () => {
+    if (finished) return; finished = true;
+    stopMouthTalk(); if (onDone) onDone();
+  };
+  utt.onstart = () => startMouthTalk();
+  utt.onend   = finish;
+  utt.onerror = e => { if (e.error !== 'interrupted') console.warn('TTS:', e.error); finish(); };
+  synth.speak(utt);
+  setTimeout(finish, Math.max(3000, text.length * 120));
+}
+
+function readWord() {
+  if (!currentWord || !synth) return;
+  cancelSpeech();
+  setBotState('speaking');
+  setTimeout(() => speak(currentWord, currentLang, 0.82, 1.1, () => setBotState('')), 50);
+}
+
+function spellAloudThen(onDone) {
+  if (!currentWord || !synth) { if (onDone) onDone(); return; }
+  loadVoices();
+  cancelSpeech();
+  setBotState('speaking');
+  const word    = currentWord;
+  const letters = word.replace(/ /g, '').split('');
+  const items   = [
+    { text: word, rate: 0.82 },
+    ...letters.map(l => ({ text: l, rate: 0.72 })),
+    { text: word, rate: 0.78 },
+  ];
+  let idx = 0;
+  function next() {
+    if (idx >= items.length) { setBotState(''); if (onDone) onDone(); return; }
+    const { text, rate } = items[idx++];
+    const gap = idx === 1 ? 0 : idx === 2 ? 180 : 80;
+    setTimeout(() => speak(text, currentLang, rate, 1.1, next), gap);
+  }
+  setTimeout(next, 80);
+}
+
+function spellAloud() { spellAloudThen(() => setBotState('')); }
+
+// ── Mic ───────────────────────────────────────────────────────────
+let recognition = null;
+
+function stopMic() {
+  if (recognition) { try { recognition.abort(); } catch(e) {} recognition = null; }
+}
+
+function toggleMic() {
+  if (recognition) {
+    stopMic(); setBotState('');
+    setBubble(LANG_CONFIG[currentLang].greeting);
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    setBubble('😕 Voice not supported. Try Chrome or Edge.');
+    return;
+  }
+  cancelSpeech();
+  setBotState('listening');
+  setBubble(LANG_CONFIG[currentLang].listening);
+
+  recognition = new SR();
+  recognition.lang              = LANG_CONFIG[currentLang].tts;
+  recognition.continuous        = false;
+  recognition.interimResults    = false;
+  recognition.maxAlternatives   = 3;
+
+  let resultFired = false;
+  recognition.onresult = e => {
+    resultFired = true;
+    const transcript = e.results[0][0].transcript.trim();
+    stopMic();
+    setBotState('thinking');
+    setTimeout(() => handleVoiceInput(transcript), 200);
+  };
+  recognition.onerror = e => {
+    if (e.error === 'aborted') return;
+    stopMic(); setBotState('');
+    const msgs = {
+      'not-allowed':   '🔒 Mic blocked. Allow microphone in browser settings.',
+      'no-speech':     LANG_CONFIG[currentLang].greeting.replace('!', '') + '... try again! 😊',
+      'audio-capture': '🎤 No microphone found.',
+      'network':       '📡 Network error.',
+    };
+    setBubble(msgs[e.error] || ('Error: ' + e.error));
+  };
+  recognition.onend = () => {
+    if (!resultFired) {
+      stopMic(); setBotState('');
+      const cur = document.getElementById('bubbleText').textContent;
+      if (cur.includes('Listening') || cur.includes('écoute') || cur.includes('höre') || cur.includes('Слушаю') || cur.includes('Слушам') || cur.includes('听')) {
+        setBubble(LANG_CONFIG[currentLang].greeting);
+      }
+    }
+  };
+  try { recognition.start(); }
+  catch(e) { stopMic(); setBotState(''); setBubble('Could not start mic: ' + e.message); }
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+document.getElementById('botFace').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') toggleMic();
+});
+
+setBotState('');
+setBubble(LANG_CONFIG[currentLang].greeting);
+updateScore();
+</script>
+</body>
+</html>
