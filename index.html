@@ -943,6 +943,9 @@ function doSpell(word) {
   clearLetters();
   document.getElementById('funFact').classList.remove('visible');
 
+  // iOS needs extra time for mic audio session to close before TTS can open
+  const delay = isIOS ? 1000 : 400;
+
   setTimeout(() => {
     setBotState('speaking');
     setBubble(data.msg);
@@ -957,7 +960,7 @@ function doSpell(word) {
     updateScore();
     enrichWordAsync(data.word, currentLang);
     spellAloudThen(() => setBotState(''));
-  }, 400);
+  }, delay);
 }
 
 // ── Language switch — always FULL RESET ─────────────────────────
@@ -1421,45 +1424,25 @@ document.getElementById('botFace').addEventListener('keydown', e => {
 });
 
 // ── iOS Audio Unlock ──────────────────────────────────────────────
-// iOS blocks ALL audio/speech until the user taps something.
-// We must "warm up" the speech synthesizer on the very first tap
-// before doing anything else — otherwise first word is silent.
+// iOS blocks ALL audio until first user tap — speak a silent utterance
+// on first interaction to unlock the audio session
 let iosAudioUnlocked = false;
-
 function unlockIOSAudio() {
   if (!isIOS || iosAudioUnlocked || !synth) return;
-  // Speak a silent utterance to unlock the audio context
-  const utt = new SpeechSynthesisUtterance('');
+  const utt = new SpeechSynthesisUtterance(' ');
   utt.volume = 0;
-  utt.onend = () => { iosAudioUnlocked = true; };
+  utt.rate   = 2;
   synth.speak(utt);
   iosAudioUnlocked = true;
 }
 
-// Patch toggleMic to unlock audio first on iOS
-const _originalToggleMic = toggleMic;
-window.toggleMic = function() {
-  unlockIOSAudio();
-  // Small delay on iOS to let audio context wake up before mic starts
-  if (isIOS && !iosAudioUnlocked) {
-    setTimeout(_originalToggleMic, 300);
-  } else {
-    _originalToggleMic();
-  }
-};
-
-// Also patch doSpell to delay TTS on iOS so mic has fully stopped first
-const _originalDoSpell = doSpell;
-window.doSpell = function(word) {
-  if (isIOS) {
-    // iOS needs more time between mic stopping and TTS starting
-    // Otherwise audio session conflict = silence
-    cancelSpeech();
-    setTimeout(() => _originalDoSpell(word), isIOS ? 800 : 0);
-  } else {
-    _originalDoSpell(word);
-  }
-};
+// Call unlock on any first touch anywhere on page (iOS)
+if (isIOS) {
+  document.addEventListener('touchstart', function onFirstTouch() {
+    unlockIOSAudio();
+    document.removeEventListener('touchstart', onFirstTouch);
+  }, { once: true });
+}
 
 setBotState('');
 setBubble(LANG_CONFIG[currentLang].greeting);
