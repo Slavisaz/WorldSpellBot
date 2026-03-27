@@ -1,1463 +1,1134 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr-Cyrl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WorldSpellBot 🌍</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="WorldSpellBot">
-<meta name="theme-color" content="#6366f1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<meta name="theme-color" content="#CC0000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Српски Фудбал">
+<link rel="manifest" href="/manifest.json">
+<title>СрпскиФудбал — Вести, Резултати, Табела</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #fff8f0;
-  --card: #ffffff;
-  --text: #1a1a2e;
-  --muted: #7c7c9a;
-  --accent1: #ff6b6b;
-  --accent2: #ffd93d;
-  --accent3: #6bcb77;
-  --accent4: #4d96ff;
-  --accent5: #c77dff;
-  --shadow: rgba(0,0,0,0.10);
-  --radius: 24px;
+:root{
+  --red:#CC0000;--redd:#990000;--blue:#003F8A;--bluem:#1a5aad;
+  --gold:#D4A017;--white:#fff;--off:#F7F8FA;--off2:#EFF1F5;
+  --bdr:#E2E5EC;--txt:#0D1117;--txt2:#2D3748;--txt3:#5A6474;--txt4:#9BA3AF;
+  --green:#16a34a;
+  --fd:'Oswald',sans-serif;--fb:'Source Serif 4',serif;--fu:'Barlow',sans-serif;
+  --r:4px;--sh:0 2px 12px rgba(0,0,0,.08);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--off);color:var(--txt);font-family:var(--fu);font-size:15px;line-height:1.6}
+a{text-decoration:none;color:inherit}
+img{max-width:100%}
+*{-webkit-tap-highlight-color:rgba(204,0,0,.1)}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* HEADER */
+.hdr{background:#fff;border-bottom:3px solid var(--red);position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.09)}
+.hdr-in{max-width:1200px;margin:0 auto;padding:0 16px;display:flex;align-items:center;height:64px;gap:16px;min-width:0}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:0;text-decoration:none}
+.logo-ball{width:46px;height:46px;flex-shrink:0;overflow:visible}
+.logo-wm{display:flex;flex-direction:column;line-height:1;min-width:0;align-items:stretch}
+.logo-name{font-family:var(--fd);font-size:24px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--red);white-space:nowrap}
+.logo-sub{font-family:var(--fu);font-size:8.5px;font-weight:500;text-transform:uppercase;color:var(--txt4);margin-top:4px;white-space:nowrap;display:flex;justify-content:space-between;letter-spacing:.04em;align-self:stretch}
+nav{display:flex;align-items:center;height:100%;gap:2px;margin-left:auto;flex-shrink:0}
+nav a{font-family:var(--fd);font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt3);padding:0 12px;height:100%;display:flex;align-items:center;border-bottom:3px solid transparent;margin-bottom:-3px;transition:color .15s,border-color .15s;white-space:nowrap}
+nav a:hover{color:var(--red);border-color:var(--red)}
+.hdr-date{font-family:var(--fu);font-size:11px;color:var(--txt4);white-space:nowrap;padding-left:12px;border-left:1px solid var(--bdr);flex-shrink:0}
+.hbtn{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;background:none;border:none;margin-left:auto;flex-shrink:0}
+.hbtn span{width:22px;height:2px;background:var(--txt);border-radius:2px;transition:all .25s}
+.hbtn.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hbtn.open span:nth-child(2){opacity:0}
+.hbtn.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
 
-body {
-  font-family: 'Nunito', sans-serif;
-  background: var(--bg);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 12px 60px;
-  background-image:
-    radial-gradient(circle at 10% 10%, #ffe0e055 0%, transparent 40%),
-    radial-gradient(circle at 90% 5%,  #c8f7dc55 0%, transparent 35%),
-    radial-gradient(circle at 85% 90%, #d0e8ff55 0%, transparent 40%),
-    radial-gradient(circle at 5%  90%, #fff3c455 0%, transparent 35%);
-  overflow-x: hidden;
-}
+/* TICKER */
+.ticker{background:var(--red);overflow:hidden;height:32px;display:flex;align-items:center}
+.tk-lbl{background:#900;color:#fff;font-family:var(--fd);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:0 14px;height:100%;display:flex;align-items:center;flex-shrink:0;white-space:nowrap;gap:7px}
+.tk-lbl::before{content:'';width:6px;height:6px;background:#fff;border-radius:50%;animation:blink 1s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.tk-scroll{overflow:hidden;flex:1}
+.tk-track{display:flex;animation:ticker 35s linear infinite;white-space:nowrap}
+.tk-track span{font-family:var(--fu);font-size:12px;font-weight:500;color:rgba(255,255,255,.92);padding:0 24px}
+.tk-track span::before{content:'·';margin-right:24px;opacity:.5}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-/* ─── HEADER ─────────────────────────────────── */
-header {
-  text-align: center;
-  margin-bottom: 14px;
-  animation: floatIn 0.7s ease;
-}
-.logo {
-  font-family: 'Baloo 2', cursive;
-  font-size: clamp(2.2rem, 7vw, 3.6rem);
-  font-weight: 800;
-  background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
-  background-size: 300% 300%;
-  animation: gradientShift 4s ease infinite;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.1;
-  filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.08));
-}
-@keyframes gradientShift {
-  0%,100% { background-position: 0% 50%; }
-  50%      { background-position: 100% 50%; }
-}
-.tagline {
-  font-size: 0.9rem;
-  color: var(--muted);
-  font-weight: 700;
-  margin-top: 2px;
-  letter-spacing: 0.02em;
-}
+/* LAYOUT */
+.page{max-width:1200px;margin:0 auto;padding:24px 20px;display:grid;grid-template-columns:1fr 320px;gap:28px;align-items:start}
+.main{min-width:0;width:100%}
+.side{min-width:0;width:100%;align-self:start;position:sticky;top:80px}
 
-/* ─── LANGUAGE SELECTOR ─────────────────────── */
-.lang-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  animation: floatIn 0.8s ease 0.1s backwards;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+/* SECTION HEADER */
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--bdr)}
+.sh-bar{width:4px;height:22px;background:var(--red);border-radius:2px;flex-shrink:0}
+.sh-ttl{font-family:var(--fd);font-size:18px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--txt)}
+.sh-ts{font-size:11px;color:var(--txt4);font-family:var(--fu)}
+.sh a{font-family:var(--fu);font-size:12px;color:var(--blue);margin-left:auto}
+.sec{margin-bottom:32px}
 
-.lang-en-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 22px;
-  border-radius: 50px;
-  border: none;
-  background: linear-gradient(135deg, #4d96ff, #6bcb77);
-  color: white;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(77,150,255,0.35);
-  transition: all 0.25s;
-  white-space: nowrap;
-}
-.lang-en-btn:hover { transform: translateY(-2px) scale(1.04); }
-.lang-en-btn.active {
-  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-  box-shadow: 0 4px 18px rgba(255,107,107,0.4);
-  transform: scale(1.06);
-}
+/* ═══ AI AGENT NEWS SECTION ═══ */
+.ai-agent-wrap{background:#fff;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:20px}
+.ai-agent-hdr{background:linear-gradient(90deg,#0d1117 0%,#1a2332 100%);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.ai-agent-badge{background:var(--red);color:#fff;font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:3px;display:flex;align-items:center;gap:5px}
+.ai-agent-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1s infinite;flex-shrink:0}
+.ai-agent-title{font-family:var(--fd);font-size:15px;font-weight:700;color:#fff;letter-spacing:.03em}
+.ai-agent-ts{font-family:var(--fu);font-size:10px;color:rgba(255,255,255,.35);margin-left:auto}
+.ai-agent-loading{padding:20px 16px;display:flex;align-items:center;gap:10px;color:var(--txt3);font-size:13px}
+.ai-agent-loading::before{content:'';width:20px;height:20px;border:2px solid var(--bdr);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.ai-news-list{display:flex;flex-direction:column;gap:0}
 
-.globe-dropdown-wrap { position: relative; }
+/* Expandable news card */
+.ai-news-card{border-bottom:1px solid var(--bdr);background:#fff;overflow:hidden}
+.ai-news-card:last-child{border-bottom:none}
+.ai-news-card-header{display:flex;align-items:stretch;cursor:pointer;transition:background .12s;text-decoration:none}
+.ai-news-card-header:hover{background:var(--off)}
+.ani-thumb{width:88px;min-width:88px;height:68px;flex-shrink:0;overflow:hidden;position:relative;background:var(--off2)}
+.ani-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
+.ai-news-card-header:hover .ani-thumb img{transform:scale(1.08)}
+.ani-body{padding:10px 13px;display:flex;flex-direction:column;justify-content:center;min-width:0;flex:1}
+.ani-src{font-family:var(--fu);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.ani-fresh{background:#16a34a;color:#fff;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border-radius:3px}
+.ani-ttl{font-family:var(--fd);font-size:13px;font-weight:600;color:var(--txt);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ani-dt{font-family:var(--fu);font-size:10px;color:var(--txt4);margin-top:3px}
+.ani-expand-hint{font-family:var(--fu);font-size:10px;color:var(--blue);margin-top:3px;display:flex;align-items:center;gap:3px}
+.ani-expand-hint::after{content:'▾';font-size:9px;transition:transform .25s}
+.ai-news-card.open .ani-expand-hint::after{transform:rotate(-180deg)}
 
-.globe-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 50px;
-  border: 2.5px solid #e2e8f0;
-  background: white;
-  color: var(--text);
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 4px 16px var(--shadow);
-  transition: all 0.25s;
-  white-space: nowrap;
-  min-width: 200px;
-  justify-content: space-between;
-}
-.globe-btn:hover { border-color: #c77dff; box-shadow: 0 6px 20px rgba(199,125,255,0.25); }
-.globe-btn.open  { border-color: #c77dff; background: #fdf4ff; }
-.globe-btn .globe-icon { font-size: 1.3rem; }
-.globe-btn .arrow { font-size: 0.7rem; transition: transform 0.3s; color: var(--muted); }
-.globe-btn.open .arrow { transform: rotate(180deg); }
-.globe-btn .selected-lang { flex: 1; text-align: left; margin-left: 4px; }
+/* Expanded body */
+.ani-full{display:none;padding:12px 16px 16px 16px;background:var(--off);border-top:1px solid var(--bdr)}
+.ai-news-card.open .ani-full{display:block}
+.ani-full-text{font-family:var(--fb);font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:10;-webkit-box-orient:vertical;overflow:hidden}
+.ani-full-link{display:inline-flex;align-items:center;gap:5px;font-family:var(--fu);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--red);border:1px solid var(--red);border-radius:4px;padding:5px 12px;transition:all .15s;text-decoration:none}
+.ani-full-link:hover{background:var(--red);color:#fff}
+.ani-loading-full{font-family:var(--fu);font-size:12px;color:var(--txt4);display:flex;align-items:center;gap:8px;padding:4px 0}
+.ani-loading-full::before{content:'';width:14px;height:14px;border:2px solid var(--bdr);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 
-.lang-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%) scaleY(0.8);
-  transform-origin: top center;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 12px 50px rgba(0,0,0,0.18);
-  padding: 8px;
-  min-width: 220px;
-  z-index: 100;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
-  border: 2px solid #f1f5f9;
-}
-.lang-dropdown.open {
-  opacity: 1;
-  pointer-events: all;
-  transform: translateX(-50%) scaleY(1);
-}
-.lang-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.9rem;
-  transition: all 0.18s;
-  color: var(--text);
-}
-.lang-option:hover { background: #f8f0ff; color: #c77dff; transform: translateX(4px); }
-.lang-option.selected { background: linear-gradient(135deg, #f8f0ff, #e8f4ff); color: #6366f1; }
-.lang-option .flag  { font-size: 1.4rem; width: 28px; text-align: center; display: flex; align-items: center; }
-.lang-option .flag img { width: 24px; height: 18px; border-radius: 3px; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
-.lang-option .lname { flex: 1; }
-.lang-option .lnative { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
-.globe-icon img { width: 22px; height: 16px; border-radius: 3px; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+/* Source colors */
+.src-fss{color:#D4A017}
+.src-mozzart{color:#e05c00}
+.src-tanjug{color:#003F8A}
+.src-b92{color:#CC0000}
+.src-kurir{color:#e05c00}
 
-/* ─── SCORE BAR ──────────────────────────────── */
-.score-bar {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  animation: floatIn 0.8s ease 0.15s backwards;
-}
-.score-pill {
-  background: white;
-  border-radius: 50px;
-  padding: 6px 16px;
-  text-align: center;
-  box-shadow: 0 4px 16px var(--shadow);
-}
-.score-num { font-family: 'Baloo 2', cursive; font-size: 1.4rem; line-height: 1; }
-.score-num.words  { color: #6366f1; }
-.score-num.streak { color: #ff6b6b; }
-.score-num.stars  { color: #ffd93d; }
-.score-label { font-size: 0.67rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+/* AI status bar */
+.ai-status{padding:8px 16px;background:var(--off);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;font-family:var(--fu);font-size:10px;color:var(--txt4)}
+.ai-status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;display:inline-block;margin-right:5px}
+.ai-refresh-btn{background:none;border:1px solid var(--bdr);border-radius:3px;padding:3px 9px;font-family:var(--fu);font-size:10px;color:var(--txt3);cursor:pointer;transition:all .15s}
+.ai-refresh-btn:hover{border-color:var(--red);color:var(--red)}
 
-/* ─── SPEECH BUBBLE ──────────────────────────── */
-.speech-bubble {
-  background: white;
-  border-radius: 22px;
-  padding: 16px 22px;
-  margin-bottom: 14px;
-  box-shadow: 0 6px 28px var(--shadow);
-  max-width: 480px;
-  width: 100%;
-  position: relative;
-  min-height: 58px;
-  border: 3px solid #e8eaff;
-  animation: floatIn 0.7s ease 0.2s backwards;
-}
-.speech-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-top: 14px solid #e8eaff;
-}
-.speech-bubble::before {
-  content: '';
-  position: absolute;
-  bottom: -9px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-top: 10px solid white;
-  z-index: 1;
-}
-.bubble-text { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.5; }
 
-/* letter boxes */
-.letter-display { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 12px; }
-.letter-box {
-  width: 44px; height: 52px;
-  background: linear-gradient(135deg, #6366f1, #818cf8);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Baloo 2', cursive;
-  font-size: 1.7rem; color: white;
-  box-shadow: 0 4px 0 #4338ca, 0 6px 14px rgba(99,102,241,0.3);
-  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) backwards;
-  text-transform: uppercase;
-}
-.letter-box.space  { background: transparent; box-shadow: none; width: 14px; }
-.letter-box.accent { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); box-shadow: 0 4px 0 #cc4444, 0 6px 14px rgba(255,107,107,0.3); }
-.letter-box.vowel  { background: linear-gradient(135deg, #ec4899, #f472b6); box-shadow: 0 4px 0 #be185d, 0 6px 14px rgba(236,72,153,0.3); }
-.letter-box.special { background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 4px 0 #b45309, 0 6px 14px rgba(245,158,11,0.3); }
 
-/* ─── CHARACTERS STAGE ───────────────────────── */
-.characters-stage {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 6px;
-  animation: floatIn 0.8s ease 0.25s backwards;
-}
 
-/* Main robot */
-.bot-face {
-  width: 120px; height: 120px;
-  background: linear-gradient(145deg, #6366f1, #8b5cf6);
-  border-radius: 30px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 0 #4338ca, 0 12px 30px rgba(99,102,241,0.4), inset 0 2px 0 rgba(255,255,255,0.2);
-  animation: float 3s ease-in-out infinite;
-  position: relative;
-  cursor: pointer; user-select: none;
-  transition: background 0.4s ease;
-  flex-shrink: 0;
-}
-.bot-face:hover { transform: translateY(-4px) scale(1.05); }
-.bot-face:active { transform: translateY(4px) scale(0.96); animation: none; }
+/* TV-LIST (used by Superliga widget) */
+.tv-list{display:flex;flex-direction:column;gap:0}
+.tv-item{display:flex;align-items:stretch;gap:0;text-decoration:none;border-bottom:1px solid var(--bdr);transition:background .12s;background:#fff}
+.tv-item:last-child{border-bottom:none}
+.tv-item:hover{background:var(--off)}
+.tv-img{width:90px;min-width:90px;height:70px;overflow:hidden;background:var(--off2);flex-shrink:0;position:relative}
+.tv-img img{width:100%;height:100%;object-fit:cover;display:block}
+.tv-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#c00 0%,#800 100%);font-size:22px}
+.tv-body{padding:10px 13px;display:flex;flex-direction:column;justify-content:center}
+.tv-src{font-family:var(--fu);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:3px}
+.tv-ttl{font-family:var(--fd);font-size:13px;font-weight:600;color:var(--txt);line-height:1.3}
+.tv-dt{font-family:var(--fu);font-size:10px;color:var(--txt4);margin-top:3px}
 
-/* Side characters */
-.side-char {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  cursor: default;
-  user-select: none;
-}
-.side-char .char-body {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.15), 0 6px 16px rgba(0,0,0,0.1);
-  animation: float 3s ease-in-out infinite;
-  flex-shrink: 0;
-}
-.side-char .char-name {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.char-star  { background: linear-gradient(145deg, #ffd93d, #f59e0b); animation-delay: -0.8s !important; }
-.char-heart { background: linear-gradient(145deg, #ff6b6b, #ec4899); animation-delay: -1.6s !important; }
-.char-cloud { background: linear-gradient(145deg, #a5f3fc, #38bdf8); animation-delay: -0.4s !important; }
-.char-leaf  { background: linear-gradient(145deg, #6bcb77, #22c55e); animation-delay: -2.1s !important; }
+/* SIDEBAR */
+.widget{background:#fff;border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.wh{background:var(--blue);color:#fff;font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:9px 14px;display:flex;align-items:center;gap:7px}
+.wh.red{background:var(--red)}
+.sv-item{display:block;padding:11px 14px;border-bottom:1px solid var(--bdr);transition:background .12s;background:#fff;text-decoration:none}
+.sv-item:last-child{border-bottom:none}
+.sv-item:hover{background:var(--off)}
+.sv-tag{font-family:var(--fu);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:3px}
+.sv-ttl{font-family:var(--fd);font-size:14px;font-weight:600;color:var(--txt);line-height:1.3}
+.sv-dt{font-family:var(--fu);font-size:10px;color:var(--txt4);margin-top:3px}
 
-/* bot SVG internals */
-.bot-svg { width: 82px; height: 82px; overflow: visible; }
-.bot-antenna-stick { stroke: rgba(255,255,255,0.7); stroke-width: 2.5; stroke-linecap: round; }
-.bot-antenna-ball  { fill: #fbbf24; filter: drop-shadow(0 0 3px #fbbf24); }
-.bot-plate  { fill: rgba(255,255,255,0.15); }
-.bot-eye-bg { fill: rgba(255,255,255,0.92); }
-.bot-pupil  { fill: #312e81; }
-.bot-shine  { fill: white; }
-.bot-mouth        { display: none; }
-.bot-mouth.active { display: block; }
-.bot-blush { fill: rgba(251,113,133,0.35); }
-.bot-bar   { fill: rgba(255,255,255,0.9); transform-origin: center bottom; }
-.bot-bar1  { animation: barBounce 0.6s ease-in-out infinite; }
-.bot-bar2  { animation: barBounce 0.6s ease-in-out infinite 0.15s; }
-.bot-bar3  { animation: barBounce 0.6s ease-in-out infinite 0.3s; }
-.bot-bar4  { animation: barBounce 0.6s ease-in-out infinite 0.1s; }
-.bot-bar5  { animation: barBounce 0.6s ease-in-out infinite 0.25s; }
-@keyframes barBounce { 0%,100%{transform:scaleY(0.3);} 50%{transform:scaleY(1);} }
+/* VIDEO */
+.vid-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.vid-card{border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.vid-lbl{padding:8px 12px;background:#fff;border:1px solid var(--bdr);border-top:none}
+.vid-lbl-t{font-family:var(--fd);font-size:13px;font-weight:600;color:var(--txt)}
+.vid-lbl-s{font-family:var(--fu);font-size:10px;color:var(--txt4);margin-top:2px}
 
-.bot-face.speaking {
-  background: linear-gradient(145deg, #10b981, #059669);
-  box-shadow: 0 8px 0 #047857, 0 12px 30px rgba(16,185,129,0.45), inset 0 2px 0 rgba(255,255,255,0.2);
-  animation: speakBounce 0.35s ease-in-out infinite alternate;
-}
-.bot-face.thinking {
-  background: linear-gradient(145deg, #f59e0b, #d97706);
-  box-shadow: 0 8px 0 #b45309, 0 12px 30px rgba(245,158,11,0.45), inset 0 2px 0 rgba(255,255,255,0.2);
-  animation: spin 1.2s linear infinite;
-}
-.bot-face.listening {
-  background: linear-gradient(145deg, #06b6d4, #0891b2);
-  box-shadow: 0 8px 0 #0e7490, 0 12px 30px rgba(6,182,212,0.45), inset 0 2px 0 rgba(255,255,255,0.2);
-  animation: listenPulse 1.4s ease-in-out infinite;
-}
-@keyframes listenPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.07);} }
+/* MOB MENU */
+.mob-menu{display:none;position:fixed;top:64px;left:0;right:0;background:#fff;border-bottom:3px solid var(--red);box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:199;padding:8px 0}
+.mob-menu.open{display:block}
+.mob-menu a{display:block;padding:13px 24px;font-family:var(--fd);font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--txt2);border-bottom:1px solid var(--bdr);transition:background .12s}
+.mob-menu a:hover{background:var(--off);color:var(--red)}
 
-.bot-tap-hint {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: #a5b4fc;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-top: 12px;
-  margin-bottom: 4px;
-  text-align: center;
+/* AD */
+.adbox{background:var(--off2);border:1px dashed var(--bdr);border-radius:var(--r);height:72px;display:flex;align-items:center;justify-content:center;font-family:var(--fu);font-size:10px;color:var(--txt4);margin-bottom:20px;letter-spacing:.08em;text-transform:uppercase}
+
+/* FOOTER */
+footer{background:var(--txt);padding:36px 20px 20px;margin-top:48px}
+.ft-top{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:32px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.1)}
+.ft-logo{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ft-logo-n{font-family:var(--fd);font-size:20px;font-weight:700;color:#fff;letter-spacing:.03em;text-transform:uppercase}
+.ft-desc{font-size:11px;color:rgba(255,255,255,.35);line-height:1.7}
+.ft-col-h{font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:10px}
+.ft-col a{display:block;font-size:12px;color:rgba(255,255,255,.55);margin-bottom:7px;transition:color .15s}
+.ft-col a:hover{color:#fff}
+.ft-bot{max-width:1200px;margin:16px auto 0;display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.25);flex-wrap:wrap;gap:8px;align-items:center}
+.ft-tricolor{height:3px;background:linear-gradient(90deg,#CC0000 33.3%,#003F8A 33.3%,#003F8A 66.6%,#e8eaf0 66.6%)}
+
+/* SUPERLIGA */
+.slw{background:#fff;border:1px solid #dde1e8;border-radius:6px;overflow:hidden;max-width:800px;margin:0;width:100%}
+.slw-hd{background:linear-gradient(90deg,#003F8A,#1a5aad);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.slw-title{font-family:var(--fd);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#fff;display:flex;align-items:center;gap:8px}
+.slw-dot{width:8px;height:8px;background:#CC0000;border-radius:50%;animation:blink2 1.2s infinite;display:none}
+@keyframes blink2{0%,100%{opacity:1}50%{opacity:.3}}
+.slw-season{font-size:10px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase}
+.slw-tabs{display:flex;background:#002d6a;border-bottom:2px solid #CC0000}
+.slw-tab{flex:1;padding:9px 0;font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.5);text-align:center;cursor:pointer;border:none;background:none;transition:all .15s;position:relative}
+.slw-tab:hover{color:rgba(255,255,255,.85)}
+.slw-tab.on{color:#fff;background:rgba(255,255,255,.07)}
+.slw-tab.on::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:#CC0000}
+.slw-badge{display:inline-block;background:#CC0000;color:#fff;font-size:10px;font-weight:800;padding:1px 5px;border-radius:3px;margin-left:4px;animation:blink2 1.2s infinite}
+.slw-panel{display:none}
+.slw-panel.on{display:block}
+.slw-spin{padding:30px;text-align:center;color:#9ca3af;font-size:13px}
+.slw-spin::before{content:'';display:block;width:28px;height:28px;border:3px solid #e5e7eb;border-top-color:#003F8A;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.slw-err{padding:20px;text-align:center;color:#CC0000;font-size:13px}
+.slw-rnd{background:#003F8A;color:#fff;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.slw-match{display:grid;grid-template-columns:minmax(0,1fr) 90px minmax(0,1fr);align-items:center;padding:10px 14px;border-bottom:1px solid #f0f2f5;transition:background .12s;gap:4px}
+.slw-match:hover{background:#f8f9fb}
+.slw-match:last-child{border-bottom:none}
+.slw-match.live{background:#fff8f8}
+.slw-ht{font-size:clamp(11px,3vw,14px);font-weight:600;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:100%}
+.slw-ht.r{text-align:right}
+.slw-ht.l{text-align:left}
+.slw-sc{text-align:center}
+.slw-scn{font-family:var(--fd);font-size:22px;font-weight:800;color:#111827;line-height:1}
+.slw-scn.red{color:#CC0000}
+.slw-scn.grey{font-size:14px;color:#6b7280}
+.slw-st{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.slw-st.red{color:#CC0000}
+.slw-st.grey{color:#9ca3af}
+.slw-st.blue{color:#003F8A}
+.slw-min{display:inline-block;background:#CC0000;color:#fff;font-size:10px;font-weight:800;padding:1px 5px;border-radius:3px;margin-bottom:3px}
+.slw-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
+.slw-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.slw-tbl thead tr{background:#f4f5f7}
+.slw-tbl th{padding:7px 8px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b7280;border-bottom:1px solid #dde1e8;white-space:nowrap}
+.slw-tbl th.l{text-align:left}
+.slw-tbl td{padding:8px 8px;text-align:center;border-bottom:1px solid #f0f2f5;color:#374151;white-space:nowrap}
+.slw-tbl td.l{text-align:left;font-weight:600;color:#111827}
+.slw-tbl tr:hover td{background:#f8f9fb}
+.slw-tbl tr:last-child td{border-bottom:none}
+.slw-tbl tr.cl td:first-child{border-left:3px solid #D4A017}
+.slw-tbl tr.el td:first-child{border-left:3px solid #003F8A}
+.slw-tbl tr.ecl td:first-child{border-left:3px solid #16a34a}
+.slw-tbl tr.rel td:first-child{border-left:3px solid #CC0000}
+.slw-pts{font-weight:800;color:#111827}
+.slw-forma{display:flex;gap:3px;justify-content:center}
+.slw-fd{width:14px;height:14px;border-radius:50%;font-size:8px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center}
+.slw-fd.П{background:#16a34a}
+.slw-fd.Н{background:#9ca3af}
+.slw-fd.И{background:#CC0000}
+.slw-legend{display:flex;gap:14px;padding:8px 14px;flex-wrap:wrap;border-top:1px solid #f0f2f5;background:#fafbfc}
+.slw-leg{display:flex;align-items:center;gap:5px;font-size:10px;color:#6b7280}
+.slw-legdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.slw-ft{padding:6px 14px;text-align:right;font-size:10px;color:#9ca3af;border-top:1px solid #f0f2f5;background:#fafbfc}
+.slw-ft a{color:#003F8A;text-decoration:none}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  .page{grid-template-columns:1fr}
+  nav{display:none}
+  .hbtn{display:flex}
+  .hdr-date{display:none}
+  .vid-grid{grid-template-columns:1fr}
+  .ft-top{grid-template-columns:1fr}
 }
-
-/* ─── AUDIO CONTROLS ─────────────────────────── */
-.audio-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
-.audio-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 10px 20px; border-radius: 50px; border: none;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+@media(max-width:600px){
+  .hdr-in{height:56px;padding:0 12px;gap:10px}
+  .logo-ball{width:38px;height:38px}
+  .logo-name{font-size:18px}
+  .page{padding:14px 12px}
+  .mob-menu{top:56px}
+  .slw-tab{font-size:11px}
 }
-.audio-btn.play  { background: linear-gradient(135deg, #4ade80, #22c55e); color: white; box-shadow: 0 4px 12px rgba(34,197,94,0.35); }
-.audio-btn.spell { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
-.audio-btn:hover    { transform: translateY(-2px) scale(1.04); }
-.audio-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-/* ─── FUN FACT ────────────────────────────────── */
-.fun-fact {
-  margin-top: 14px;
-  background: linear-gradient(135deg, #fef9c3, #fef3c7);
-  border-radius: 16px; padding: 12px 16px;
-  border-left: 4px solid #fbbf24;
-  font-size: 0.88rem; font-weight: 600; color: #92400e;
-  max-width: 480px; width: 100%; display: none;
-}
-.fun-fact.visible { display: block; animation: floatIn 0.4s ease; }
-
-/* ─── STAR POP ────────────────────────────────── */
-.star-pop { position: fixed; font-size: 2rem; pointer-events: none; animation: starFloat 1.2s ease forwards; z-index: 999; }
-
-/* ─── KEYFRAMES ──────────────────────────────── */
-@keyframes float       { 0%,100%{transform:translateY(0);}  50%{transform:translateY(-8px);} }
-@keyframes speakBounce { from{transform:scale(1) rotate(-2deg);} to{transform:scale(1.07) rotate(2deg);} }
-@keyframes spin        { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-@keyframes floatIn     { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
-@keyframes popIn       { from{opacity:0;transform:scale(0.3) rotate(-10deg);} to{opacity:1;transform:scale(1) rotate(0);} }
-@keyframes starFloat   { 0%{opacity:1;transform:translateY(0) scale(1);} 100%{opacity:0;transform:translateY(-100px) scale(1.5);} }
-
-/* ─── RESPONSIVE ─────────────────────────────── */
-@media(max-width:520px) {
-  .bot-face  { width:100px; height:100px; border-radius:26px; }
-  .bot-svg   { width:68px; height:68px; }
-  .side-char .char-body { width:52px; height:52px; font-size:1.6rem; }
-  .letter-box { width:36px; height:44px; font-size:1.3rem; }
-  .globe-btn { min-width: 170px; font-size: 0.85rem; }
-}
-@media(max-width:380px) {
-  .side-char .char-body { width:44px; height:44px; font-size:1.35rem; }
-  .characters-stage { gap: 6px; }
+@media(max-width:520px){
+  .slw-ht{font-size:12px}
+  .slw-scn{font-size:18px}
+  .slw-tbl th,.slw-tbl td{padding:7px 5px;font-size:12px}
+  .col-pni{display:none}
 }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">🌍 WorldSpellBot</div>
-  <div class="tagline">Spell in any language! ✨</div>
+<header class="hdr">
+  <div class="hdr-in">
+    <a href="/" class="logo">
+      <svg class="logo-ball" viewBox="-1 -1 202 202" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="lbc"><circle cx="100" cy="100" r="99"/></clipPath>
+          <radialGradient id="lbg" cx="33%" cy="27%" r="66%">
+            <stop offset="0%" stop-color="#fff"/>
+            <stop offset="100%" stop-color="#bfc6d0"/>
+          </radialGradient>
+          <radialGradient id="lrs" cx="50%" cy="50%" r="50%">
+            <stop offset="55%" stop-color="rgba(0,0,0,0)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0.22)"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="99" fill="url(#lbg)"/>
+        <g clip-path="url(#lbc)">
+          <rect x="1" y="1"   width="198" height="66" fill="#CC0000"/>
+          <rect x="1" y="67"  width="198" height="66" fill="#003F8A"/>
+          <rect x="1" y="133" width="198" height="67" fill="#e4e7ef"/>
+        </g>
+        <polygon clip-path="url(#lbc)" points="113,60 135,94 108,126 70,111 73,70" fill="rgba(255,255,255,0.32)" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <polygon clip-path="url(#lbc)" points="168,16 134,37 103,11 118,-26 158,-23" fill="rgba(255,255,255,0.28)" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <polygon clip-path="url(#lbc)" points="194,133 163,107 178,70 218,73 228,112" fill="rgba(255,255,255,0.28)" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <polygon clip-path="url(#lbc)" points="90,193 105,156 145,159 155,198 121,219" fill="rgba(255,255,255,0.28)" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <polygon clip-path="url(#lbc)" points="1,114 41,117 51,156 17,177 -14,151" fill="rgba(255,255,255,0.28)" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <polygon clip-path="url(#lbc)" points="49,4 59,43 25,64 -6,38 9,1" fill="rgba(255,255,255,0.28)" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="100" cy="100" r="99" fill="url(#lrs)"/>
+        <ellipse cx="60" cy="44" rx="28" ry="19" fill="white" opacity="0.50" transform="rotate(-30 60 44)"/>
+        <ellipse cx="55" cy="39" rx="13" ry="9"  fill="white" opacity="0.62" transform="rotate(-30 55 39)"/>
+        <circle cx="100" cy="100" r="99" fill="none" stroke="#a4adb8" stroke-width="1.5"/>
+      </svg>
+      <div class="logo-wm">
+        <div class="logo-name">Српски Фудбал</div>
+        <div class="logo-sub"><span>Вести</span><span>Резултати</span><span>Табела</span></div>
+      </div>
+    </a>
+    <nav>
+      <a href="#vesti">Вести</a>
+      <a href="#superliga">Суперлига</a>
+      <a href="#reprezentacija">Репрезентација</a>
+      <a href="#video">Видео</a>
+    </nav>
+    <div class="hdr-date" id="hdr-date"></div>
+    <button class="hbtn" id="hbtn" onclick="toggleMob()" aria-label="Мени">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 
-<!-- Language selector row -->
-<div class="lang-section">
-  <!-- English primary button -->
-  <button class="lang-en-btn active" id="enBtn" onclick="setLang('en')">
-    <img src="https://flagcdn.com/w40/gb.png" alt="GB" style="width:22px;height:16px;border-radius:3px;object-fit:cover;box-shadow:0 1px 4px rgba(0,0,0,0.15);vertical-align:middle;"> English
-  </button>
+<div class="mob-menu" id="mob-menu">
+  <a href="#vesti" onclick="closeMob()">Вести</a>
+  <a href="#superliga" onclick="closeMob()">Суперлига</a>
+  <a href="#reprezentacija" onclick="closeMob()">Репрезентација</a>
+  <a href="#video" onclick="closeMob()">Видео</a>
+</div>
 
-  <!-- Globe dropdown for other languages -->
-  <div class="globe-dropdown-wrap">
-    <button class="globe-btn" id="globeBtn" onclick="toggleDropdown()">
-      <span class="globe-icon" id="globeIcon">🌐</span>
-      <span class="selected-lang" id="selectedLangLabel">Choose language…</span>
-      <span class="arrow">▼</span>
-    </button>
-    <div class="lang-dropdown" id="langDropdown">
-      <div class="lang-option" onclick="setLang('fr')"><span class="flag"><img src="https://flagcdn.com/w40/fr.png" alt="FR"></span><span class="lname">Français</span><span class="lnative">French</span></div>
-      <div class="lang-option" onclick="setLang('de')"><span class="flag"><img src="https://flagcdn.com/w40/de.png" alt="DE"></span><span class="lname">Deutsch</span><span class="lnative">German</span></div>
-      <div class="lang-option" onclick="setLang('es')"><span class="flag"><img src="https://flagcdn.com/w40/es.png" alt="ES"></span><span class="lname">Español</span><span class="lnative">Spanish</span></div>
-      <div class="lang-option" onclick="setLang('ru')"><span class="flag"><img src="https://flagcdn.com/w40/ru.png" alt="RU"></span><span class="lname">Русский</span><span class="lnative">Russian</span></div>
-      <div class="lang-option" onclick="setLang('it')"><span class="flag"><img src="https://flagcdn.com/w40/it.png" alt="IT"></span><span class="lname">Italiano</span><span class="lnative">Italian</span></div>
-      <div class="lang-option" onclick="setLang('sr')"><span class="flag"><img src="https://flagcdn.com/w40/rs.png" alt="RS"></span><span class="lname">Српски</span><span class="lnative">Serbian</span></div>
-      <div class="lang-option" onclick="setLang('zh')"><span class="flag"><img src="https://flagcdn.com/w40/cn.png" alt="CN"></span><span class="lname">中文</span><span class="lnative">Mandarin</span></div>
+<div class="ticker">
+  <div class="tk-lbl" id="tk-lbl">Уживо</div>
+  <div class="tk-scroll">
+    <div class="tk-track" id="ticker-track">
+      <span>Учитавам вести...</span>
     </div>
   </div>
 </div>
 
-<!-- Score pills -->
-<div class="score-bar">
-  <div class="score-pill"><div class="score-num words" id="scoreWords">0</div><div class="score-label">Words</div></div>
-  <div class="score-pill"><div class="score-num streak" id="scoreStreak">0</div><div class="score-label">Streak 🔥</div></div>
-  <div class="score-pill"><div class="score-num stars" id="scoreStars">⭐</div></div>
-</div>
+<div class="page">
+<div class="main">
 
-<!-- Speech bubble -->
-<div class="speech-bubble">
-  <div class="bubble-text" id="bubbleText">Hi! Tap me and say a word! 😊</div>
-  <div class="letter-display" id="letterDisplay"></div>
-</div>
-
-<!-- Characters stage -->
-<div class="characters-stage">
-  <!-- Left side characters -->
-  <div class="side-char">
-    <div class="char-body char-star">⭐</div>
-    <div class="char-name">Zara</div>
-  </div>
-  <div class="side-char">
-    <div class="char-body char-heart">💖</div>
-    <div class="char-name">Ruby</div>
-  </div>
-
-  <!-- Main bot -->
-  <div style="display:flex;flex-direction:column;align-items:center;">
-    <div class="bot-face" id="botFace" onclick="toggleMic()" role="button" tabindex="0" title="Tap to speak">
-      <svg class="bot-svg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-        <line class="bot-antenna-stick" x1="40" y1="4" x2="40" y2="14"/>
-        <circle class="bot-antenna-ball" cx="40" cy="3" r="3.5"/>
-        <rect class="bot-plate" x="12" y="14" width="56" height="52" rx="12" ry="12"/>
-        <circle class="bot-eye-bg" cx="28" cy="34" r="9"/>
-        <circle class="bot-eye-bg" cx="52" cy="34" r="9"/>
-        <circle class="bot-pupil" id="pupilL" cx="28" cy="35" r="5"/>
-        <circle class="bot-pupil" id="pupilR" cx="52" cy="35" r="5"/>
-        <circle class="bot-shine" cx="30" cy="32" r="2"/>
-        <circle class="bot-shine" cx="54" cy="32" r="2"/>
-        <ellipse class="bot-blush" cx="19" cy="44" rx="5" ry="3"/>
-        <ellipse class="bot-blush" cx="61" cy="44" rx="5" ry="3"/>
-        <path id="mouth-idle" class="bot-mouth active" d="M28 52 Q40 62 52 52"
-          fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round"/>
-        <g id="mouth-speaking" class="bot-mouth">
-          <path id="mouth-upper" d="M28 50 Q40 46 52 50" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="2.5" stroke-linecap="round"/>
-          <path id="mouth-lower" d="M28 50 Q40 58 52 50" fill="rgba(0,0,0,0.25)" stroke="rgba(255,255,255,0.95)" stroke-width="2.5" stroke-linecap="round"/>
-          <ellipse id="mouth-tongue" cx="40" cy="56" rx="5" ry="2.5" fill="#fb7185" opacity="0"/>
-        </g>
-        <line id="mouth-thinking" class="bot-mouth" x1="29" y1="54" x2="51" y2="54"
-          stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 4"/>
-        <g id="mouth-listening" class="bot-mouth">
-          <rect class="bot-bar bot-bar1" x="27" y="48" width="4" height="10" rx="2"/>
-          <rect class="bot-bar bot-bar2" x="33" y="46" width="4" height="12" rx="2"/>
-          <rect class="bot-bar bot-bar3" x="39" y="44" width="4" height="14" rx="2"/>
-          <rect class="bot-bar bot-bar4" x="45" y="46" width="4" height="12" rx="2"/>
-          <rect class="bot-bar bot-bar5" x="51" y="48" width="4" height="10" rx="2"/>
-        </g>
-      </svg>
+  <!-- ══════════════════════════════════════
+       AI ВЕСТ АГЕНТ — Српски фудбал
+       Извори: ФСС · Мозарт · Танјуг · Б92
+       ══════════════════════════════════════ -->
+  <div id="vesti" class="sec" style="margin-bottom:20px">
+    <div class="sh">
+      <div class="sh-bar"></div>
+      <h2 class="sh-ttl">Најновије вести</h2>
+      <span class="sh-ts" id="vesti-ts" style="margin-left:auto"></span>
     </div>
-    <div class="bot-tap-hint" id="tapHint">TAP TO SPEAK</div>
+
+    <div class="ai-agent-wrap" id="ai-agent-wrap">
+      <div class="ai-agent-hdr">
+        <div class="ai-agent-badge">АИ Агент</div>
+        <div class="ai-agent-title">Фудбалске вести — уживо</div>
+        <div class="ai-agent-ts" id="agent-ts"></div>
+      </div>
+      <div id="ai-news-container">
+        <div class="ai-agent-loading">Учитавам вести из ФСС, Мозарт Спорт, Танјуг и Б92...</div>
+      </div>
+      <div class="ai-status">
+        <span><span class="ai-status-dot"></span>АИ агент активан · <span id="ai-count">0</span> наслова · извори: ФСС · Мозарт · Танјуг · Б92</span>
+        <button class="ai-refresh-btn" onclick="runAiAgent(true)">↻ Освежи</button>
+      </div>
+    </div>
   </div>
 
-  <!-- Right side characters -->
-  <div class="side-char">
-    <div class="char-body char-cloud">☁️</div>
-    <div class="char-name">Cloudy</div>
+  <!-- AD -->
+  <div class="adbox">Google AdSense — 728×90</div>
+
+  <!-- SUPERLIGA -->
+  <div id="superliga" class="sec">
+    <div class="slw" id="slw">
+      <div class="slw-hd">
+        <div class="slw-title">
+          <span class="slw-dot" id="slw-dot"></span>
+          ⚽ Суперлига Србије
+        </div>
+        <div class="slw-season">Сезона 2025/26</div>
+      </div>
+      <div class="slw-tabs">
+        <button class="slw-tab on" onclick="slTab('rez',this)">Резултати</button>
+        <button class="slw-tab" onclick="slTab('tab',this)">Табела</button>
+        <button class="slw-tab" onclick="slTab('uzi',this)">Уживо<span class="slw-badge" id="slw-badge" style="display:none"></span></button>
+        <button class="slw-tab" onclick="slTab('ras',this)">Распоред</button>
+      </div>
+      <div class="slw-panel on" id="slw-panel-rez"><div class="slw-spin" id="slw-spin-rez"></div><div id="slw-out-rez"></div></div>
+      <div class="slw-panel" id="slw-panel-tab"><div class="slw-spin" id="slw-spin-tab"></div><div id="slw-out-tab"></div></div>
+      <div class="slw-panel" id="slw-panel-uzi"><div class="slw-spin" id="slw-spin-uzi"></div><div id="slw-out-uzi"></div></div>
+      <div class="slw-panel" id="slw-panel-ras"><div class="slw-spin" id="slw-spin-ras"></div><div id="slw-out-ras"></div></div>
+      <div class="slw-ft">Подаци: <a href="https://apifootball.com" target="_blank">APIfootball.com</a> · <a href="https://srpskifudbal.com" target="_blank">СрпскиФудбал.com</a> · <span id="slw-ts">Учитавам...</span></div>
+    </div>
+    <div class="adbox" style="margin-top:16px">Google AdSense — 728×90</div>
   </div>
-  <div class="side-char">
-    <div class="char-body char-leaf">🌿</div>
-    <div class="char-name">Leafy</div>
+
+  <!-- VIDEO -->
+  <div id="video" class="sec">
+    <div class="sh">
+      <div class="sh-bar"></div>
+      <h2 class="sh-ttl">Суперлига — Видео</h2>
+      <a href="https://www.youtube.com/@SuperligaRs1" target="_blank">YouTube →</a>
+    </div>
+    <div class="vid-grid">
+      <a class="vid-card" href="https://www.youtube.com/@SuperligaRs1" target="_blank" rel="noopener" style="text-decoration:none;display:block">
+        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:#CC0000">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#CC0000 60%,#990000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+            <svg width="64" height="44" viewBox="0 0 68 48" style="filter:drop-shadow(0 2px 8px rgba(0,0,0,.6))">
+              <path d="M66.52,7.74C65.73,4.5,63.2,1.97,59.97,1.18C54.7,0,33.56,0,33.56,0S12.42,0,7.14,1.18C3.91,1.97,1.38,4.5,.59,7.74C-0.59,13.02,-0.59,24,-0.59,24s0,10.98,1.18,16.26c0.79,3.24,3.32,5.77,6.55,6.56C12.42,48,33.56,48,33.56,48s21.14,0,26.41-1.18c3.23-0.79,5.76-3.32,6.55-6.56C67.7,34.98,67.7,24,67.7,24S67.7,13.02,66.52,7.74z" fill="rgba(0,0,0,0.5)"/>
+              <path d="M26.96,34.32L44.68,24L26.96,13.68V34.32z" fill="#fff"/>
+            </svg>
+            <span style="color:#fff;font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:.05em;text-shadow:0 1px 4px rgba(0,0,0,.6)">⚽ Суперлига Србије</span>
+            <span style="color:rgba(255,255,255,.85);font-size:11px;text-shadow:0 1px 3px rgba(0,0,0,.5)">Кликни за најновије видео →</span>
+          </div>
+        </div>
+        <div class="vid-lbl"><div class="vid-lbl-t">Суперлига Србије</div><div class="vid-lbl-s">SuperligaRs1 · YouTube</div></div>
+      </a>
+      <a class="vid-card" href="https://www.youtube.com/@FSSrbije" target="_blank" rel="noopener" style="text-decoration:none;display:block">
+        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:#003F8A">
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+            <svg width="64" height="44" viewBox="0 0 68 48" style="filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))">
+              <path d="M66.52,7.74C65.73,4.5,63.2,1.97,59.97,1.18C54.7,0,33.56,0,33.56,0S12.42,0,7.14,1.18C3.91,1.97,1.38,4.5,.59,7.74C-0.59,13.02,-0.59,24,-0.59,24s0,10.98,1.18,16.26c0.79,3.24,3.32,5.77,6.55,6.56C12.42,48,33.56,48,33.56,48s21.14,0,26.41-1.18c3.23-0.79,5.76-3.32,6.55-6.56C67.7,34.98,67.7,24,67.7,24S67.7,13.02,66.52,7.74z" fill="#f00"/>
+              <path d="M26.96,34.32L44.68,24L26.96,13.68V34.32z" fill="#fff"/>
+            </svg>
+            <span style="color:#fff;font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:.05em;text-shadow:0 1px 4px rgba(0,0,0,.8)">Репрезентација Србије 🇷🇸</span>
+            <span style="color:rgba(255,255,255,.8);font-size:11px;text-shadow:0 1px 3px rgba(0,0,0,.8)">Кликни за најновије видео →</span>
+          </div>
+        </div>
+        <div class="vid-lbl"><div class="vid-lbl-t">Репрезентација Србије</div><div class="vid-lbl-s">FSSrbije · YouTube</div></div>
+      </a>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- SIDEBAR -->
+<div class="side" id="reprezentacija">
+  <div class="widget">
+    <div class="wh red">🇷🇸 Репрезентација</div>
+    <a class="sv-item" href="https://www.fss.rs" target="_blank" rel="noopener">
+      <div class="sv-tag">ФСС Службено</div>
+      <div class="sv-ttl">Фудбалски савез Србије</div>
+      <div class="sv-dt">fss.rs — званичне информације</div>
+    </a>
+    <a class="sv-item" href="https://fss.rs/selekcije/a-selekcija/" target="_blank" rel="noopener">
+      <div class="sv-tag">А Репрезентација</div>
+      <div class="sv-ttl">Сениорска репрезентација Србије</div>
+    </a>
+    <a class="sv-item" href="https://fss.rs/selekcije/u-21/" target="_blank" rel="noopener">
+      <div class="sv-tag">У21</div>
+      <div class="sv-ttl">Репрезентација У21</div>
+    </a>
+  </div>
+
+  <div class="widget">
+    <div class="wh">📰 Извори вести</div>
+    <a class="sv-item" href="https://www.fss.rs" target="_blank" rel="noopener">
+      <div class="sv-tag src-fss">ФСС</div>
+      <div class="sv-ttl">fss.rs — Фудбалски савез Србије</div>
+    </a>
+    <a class="sv-item" href="https://www.mozzartsport.com" target="_blank" rel="noopener">
+      <div class="sv-tag src-mozzart">Мозарт Спорт</div>
+      <div class="sv-ttl">mozzartsport.com</div>
+    </a>
+    <a class="sv-item" href="https://www.tanjug.rs/sport/fudbal" target="_blank" rel="noopener">
+      <div class="sv-tag src-tanjug">Танјуг</div>
+      <div class="sv-ttl">tanjug.rs — Фудбалске вести</div>
+    </a>
+    <a class="sv-item" href="https://www.b92.net/sport/fudbal/" target="_blank" rel="noopener">
+      <div class="sv-tag src-b92">Б92</div>
+      <div class="sv-ttl">b92.net — Српски фудбал</div>
+    </a>
+    <a class="sv-item" href="https://www.kurir.rs/sport/fudbal" target="_blank" rel="noopener">
+      <div class="sv-tag" style="color:#e05c00">Курир</div>
+      <div class="sv-ttl">kurir.rs — Фудбал</div>
+    </a>
+  </div>
+
+  <div class="adbox" style="height:250px;flex-direction:column">
+    <span>Google AdSense</span>
+    <span>300×250</span>
   </div>
 </div>
 
-<!-- Audio buttons -->
-<div class="audio-controls">
-  <button class="audio-btn play"  id="readBtn"      onclick="readWord()"   disabled>▶ Read word</button>
-  <button class="audio-btn spell" id="spellAloudBtn" onclick="spellAloud()" disabled>🔤 Spell aloud</button>
-</div>
+</div><!-- /page -->
 
-<!-- Fun fact -->
-<div class="fun-fact" id="funFact"></div>
+<footer>
+  <div class="ft-tricolor"></div>
+  <div style="height:32px"></div>
+  <div class="ft-top">
+    <div>
+      <div class="ft-logo">
+        <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" width="38" height="38">
+          <circle cx="26" cy="26" r="25" fill="#CC0000"/>
+          <circle cx="26" cy="26" r="17" fill="#003F8A"/>
+          <circle cx="26" cy="26" r="10" fill="white" opacity=".9"/>
+          <text x="26" y="30" text-anchor="middle" font-family="serif" font-size="11" font-weight="900" fill="#CC0000">СФ</text>
+        </svg>
+        <span class="ft-logo-n">Српски Фудбал</span>
+      </div>
+      <div class="ft-desc">Аутоматски АИ портал о српском фудбалу.<br>Вести · Резултати · Табела<br>Вести: само оригинални наслови и линкови.</div>
+    </div>
+    <div class="ft-col">
+      <div class="ft-col-h">Навигација</div>
+      <a href="#superliga">Суперлига</a>
+      <a href="#vesti">Вести</a>
+      <a href="#video">Видео</a>
+    </div>
+    <div class="ft-col">
+      <div class="ft-col-h">Извори</div>
+      <a href="https://www.fss.rs" target="_blank">ФСС</a>
+      <a href="https://www.mozzartsport.com" target="_blank">Мозарт Спорт</a>
+      <a href="https://www.tanjug.rs" target="_blank">Танјуг</a>
+      <a href="https://www.b92.net/sport/fudbal/" target="_blank">Б92</a>
+      <a href="https://apifootball.com" target="_blank">APIfootball.com</a>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <span>© 2026 СрпскиФудбал.цом — Аутоматски АИ портал</span>
+    <span>Вести: ФСС · Мозарт Спорт · Танјуг · Б92</span>
+  </div>
+</footer>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-//  WorldSpellBot — v1.0
-//  Supports: English, French, German, Spanish, Russian,
-//            Italian, Serbian (Cyrillic), Chinese (Mandarin)
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════
+const WORKER_URL  = 'https://superliga-api.slavisa-cf8.workers.dev';
+const APIF_BASE   = 'https://v3.football.api-sports.io';
+const APIF_KEY    = 'b80e630effea6fbdac1643532977e620';
+const APIF_LEAGUE = 271;
+const APIF_SEASON = 2025;
+const TID = 210;
+let SID = 1;
 
-// ── Put your Anthropic API key here for AI word lookup ──
-// Get one free at console.anthropic.com
-// Leave as 'YOUR_API_KEY' to use local word bank only
-const ANTHROPIC_API_KEY = 'YOUR_API_KEY';
+// ════════════════════════════════════
+// DATE HEADER
+// ════════════════════════════════════
+(function(){
+  const d=new Date();
+  const dn=['нед','пон','уто','сри','чет','пет','суб'];
+  const mn=['јан','феб','мар','апр','мај','јун','јул','авг','сеп','окт','нов','дец'];
+  const el=document.getElementById('hdr-date');
+  if(el) el.textContent=d.getDate()+'. '+mn[d.getMonth()]+' '+d.getFullYear()+' · '+dn[d.getDay()];
+})();
 
-let currentLang = 'en';
-let currentWord  = '';
-let scores = { words: 0, streak: 0, stars: 0 };
+// ════════════════════════════════════
+// MOBILE MENU
+// ════════════════════════════════════
+function toggleMob(){document.getElementById('hbtn').classList.toggle('open');document.getElementById('mob-menu').classList.toggle('open');}
+function closeMob(){document.getElementById('hbtn').classList.remove('open');document.getElementById('mob-menu').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#hbtn')&&!e.target.closest('#mob-menu'))closeMob();});
 
-// ── Language config ──────────────────────────────────────────────
-const LANG_CONFIG = {
-  en: { name: 'English',   flag: '🇬🇧', flagImg: 'https://flagcdn.com/w40/gb.png', tts: 'en-US', greeting: 'Hi! Tap me and say a word! 😊',     thinking: 'Hmm, let me think... 🤔',   listening: '🎤 Listening... say a word!',  readBtn: '▶ Read word', spellAloud: '🔤 Spell aloud' },
-  fr: { name: 'Français',  flag: '🇫🇷', flagImg: 'https://flagcdn.com/w40/fr.png', tts: 'fr-FR', greeting: 'Appuie sur moi et dis un mot! 😊',  thinking: 'Hmm, laisse-moi réfléchir... 🤔', listening: "🎤 J'écoute... dis un mot!", readBtn: '▶ Lire le mot', spellAloud: '🔤 Épeler' },
-  de: { name: 'Deutsch',   flag: '🇩🇪', flagImg: 'https://flagcdn.com/w40/de.png', tts: 'de-DE', greeting: 'Tipp mich an und sag ein Wort! 😊', thinking: 'Hmm, lass mich nachdenken... 🤔', listening: '🎤 Ich höre... sag ein Wort!', readBtn: '▶ Vorlesen', spellAloud: '🔤 Buchstabieren' },
-  es: { name: 'Español',   flag: '🇪🇸', flagImg: 'https://flagcdn.com/w40/es.png', tts: 'es-ES', greeting: '¡Tócame y di una palabra! 😊',      thinking: 'Hmm, déjame pensar... 🤔',   listening: '🎤 Escuchando... ¡di una palabra!', readBtn: '▶ Leer palabra', spellAloud: '🔤 Deletrear' },
-  ru: { name: 'Русский',   flag: '🇷🇺', flagImg: 'https://flagcdn.com/w40/ru.png', tts: 'ru-RU', greeting: 'Нажми меня и скажи слово! 😊',      thinking: 'Хмм, дай подумаю... 🤔',    listening: '🎤 Слушаю... скажи слово!',   readBtn: '▶ Прочитать', spellAloud: '🔤 Произнести' },
-  it: { name: 'Italiano',  flag: '🇮🇹', flagImg: 'https://flagcdn.com/w40/it.png', tts: 'it-IT', greeting: 'Toccami e di una parola! 😊',       thinking: 'Hmm, fammi pensare... 🤔',   listening: '🎤 Ascolto... di una parola!', readBtn: '▶ Leggi parola', spellAloud: '🔤 Compita' },
-  sr: { name: 'Српски',    flag: '🇷🇸', flagImg: 'https://flagcdn.com/w40/rs.png', tts: 'sr-RS', greeting: 'Додирни ме и реци реч! 😊',         thinking: 'Хм, дај да размислим... 🤔', listening: '🎤 Слушам... реци реч!',      readBtn: '▶ Прочитај', spellAloud: '🔤 Слова по слово' },
-  zh: { name: '中文',       flag: '🇨🇳', flagImg: 'https://flagcdn.com/w40/cn.png', tts: 'zh-CN', greeting: '点击我，说一个词！😊',               thinking: '嗯，让我想想... 🤔',         listening: '🎤 听着...说一个词！',          readBtn: '▶ 读单词', spellAloud: '🔤 拼写' },
-};
 
-const VOWELS = new Set('aeiouyéèêëàâîïôûùüäöüáéíóúñ'.split(''));
-
-// ── Word bank ────────────────────────────────────────────────────
-const WORD_DATA = {
-  en: {
-    apple:     { msg: 'A-P-P-L-E! 🍎 Double P!',       fact: 'There are over 7,500 varieties of apples!' },
-    banana:    { msg: 'B-A-N-A-N-A! 🍌 NAN in the middle!', fact: 'Bananas are technically berries!' },
-    cat:       { msg: 'C-A-T! 🐱 Just 3 letters!',     fact: 'Cats sleep up to 16 hours a day!' },
-    dog:       { msg: 'D-O-G! 🐶 3 letters!',           fact: 'Dogs smell 40x better than humans!' },
-    elephant:  { msg: 'E-L-E-P-H-A-N-T! 🐘 PH=F!',    fact: 'Elephants never forget!' },
-    fish:      { msg: 'F-I-S-H! 🐟 4 letters!',         fact: 'Fish have been on Earth 500 million years!' },
-    giraffe:   { msg: 'G-I-R-A-F-F-E! 🦒 Double F!',   fact: "A giraffe's tongue is 18 inches long!" },
-    happy:     { msg: 'H-A-P-P-Y! 😊 Double P!',        fact: 'Smiling releases happy brain chemicals!' },
-    lion:      { msg: 'L-I-O-N! 🦁 4 letters!',         fact: 'Lions sleep up to 20 hours a day!' },
-    moon:      { msg: 'M-O-O-N! 🌙 Double O!',          fact: 'The Moon moves away 1.5 inches every year!' },
-    rainbow:   { msg: 'R-A-I-N-B-O-W! 🌈 Rain+bow!',   fact: 'Rainbows are actually full circles!' },
-    star:      { msg: 'S-T-A-R! ⭐ 4 letters!',         fact: 'Our Sun is a medium-sized star!' },
-    sun:       { msg: 'S-U-N! ☀️ 3 letters!',           fact: 'Sunlight takes 8 minutes to reach Earth!' },
-    tiger:     { msg: 'T-I-G-E-R! 🐯 5 letters!',       fact: 'No two tigers have the same stripes!' },
-    umbrella:  { msg: 'U-M-B-R-E-L-L-A! ☂️ Double L!', fact: 'Umbrellas were first used for sun, not rain!' },
-    unicorn:   { msg: 'U-N-I-C-O-R-N! 🦄 Uni=one!',    fact: "The unicorn is Scotland's national animal!" },
-    water:     { msg: 'W-A-T-E-R! 💧 5 letters!',       fact: "71% of Earth's surface is covered in water!" },
-    whale:     { msg: 'W-H-A-L-E! 🐋 Silent E!',        fact: 'Blue whales are the largest animals ever!' },
-    zebra:     { msg: 'Z-E-B-R-A! 🦓 Starts with Z!',  fact: 'Every zebra has unique stripes!' },
-    butterfly: { msg: 'B-U-T-T-E-R-F-L-Y! 🦋 Double T!', fact: 'Butterflies taste with their feet!' },
-    chocolate: { msg: 'C-H-O-C-O-L-A-T-E! 🍫',         fact: '400 cocoa beans make one pound of chocolate!' },
-    dinosaur:  { msg: 'D-I-N-O-S-A-U-R! 🦕',           fact: 'Dinosaurs lived for 165 million years!' },
-    penguin:   { msg: 'P-E-N-G-U-I-N! 🐧',             fact: 'Penguins propose with a pebble!' },
-    strawberry:{ msg: 'S-T-R-A-W-B-E-R-R-Y! 🍓 Double R!', fact: 'Strawberries have seeds on the outside!' },
-    flower:    { msg: 'F-L-O-W-E-R! 🌸',               fact: 'The biggest flower can be 3 feet wide!' },
-    pizza:     { msg: 'P-I-Z-Z-A! 🍕 Double Z!',        fact: 'Pizza was invented in Naples, Italy!' },
-    school:    { msg: 'S-C-H-O-O-L! 🏫 Double O!',     fact: 'The oldest school was founded in 597 AD!' },
-    monkey:    { msg: 'M-O-N-K-E-Y! 🐒 Ends with KEY!', fact: 'Monkeys peel bananas from the bottom!' },
-    frog:      { msg: 'F-R-O-G! 🐸 4 letters!',         fact: 'Frogs drink water through their skin!' },
-    snow:      { msg: 'S-N-O-W! ❄️ 4 letters!',         fact: 'No two snowflakes are exactly alike!' },
-    wolf:      { msg: 'W-O-L-F! 🐺 4 letters!',         fact: 'Wolves howl to communicate across miles!' },
-    cake:      { msg: 'C-A-K-E! 🎂 Silent E!',          fact: 'Ancient Egyptians made the first cakes!' },
-    cloud:     { msg: 'C-L-O-U-D! ☁️ 5 letters!',      fact: 'Clouds can weigh over a million pounds!' },
-    music:     { msg: 'M-U-S-I-C! 🎵 5 letters!',       fact: 'Music activates more brain areas than anything else!' },
-    hello:     { msg: 'H-E-L-L-O! 👋 Double L!',        fact: 'Hello became popular as a phone greeting in 1877!' },
-    love:      { msg: 'L-O-V-E! ❤️ Silent E!',          fact: 'People say "I love you" 3x more in texting than speaking!' },
-    friend:    { msg: 'F-R-I-E-N-D! 👫',                fact: 'The word friend comes from Old English "freond"!' },
-  },
-
-  fr: {
-    pomme:      { msg: 'P-O-M-M-E! 🍎 Double M!',      fact: "Il existe plus de 7 500 variétés de pommes!" },
-    banane:     { msg: 'B-A-N-A-N-E! 🍌 NAN au milieu!', fact: 'La banane est techniquement une baie!' },
-    chat:       { msg: 'C-H-A-T! 🐱 T muet!',           fact: 'Les chats dorment 16 heures par jour!' },
-    chien:      { msg: 'C-H-I-E-N! 🐶 5 lettres!',      fact: 'Les chiens sentent 40x mieux que nous!' },
-    éléphant:   { msg: 'É-L-É-P-H-A-N-T! 🐘 PH=F!',   fact: "Les éléphants ne peuvent pas sauter!" },
-    poisson:    { msg: 'P-O-I-S-S-O-N! 🐟 Double S!',  fact: "Les poissons existent depuis 500 millions d'années!" },
-    girafe:     { msg: 'G-I-R-A-F-E! 🦒 Un seul F!',   fact: "La langue d'une girafe fait 45 cm!" },
-    lion:       { msg: 'L-I-O-N! 🦁 4 lettres!',        fact: 'Les lions dorment 20 heures par jour!' },
-    lune:       { msg: 'L-U-N-E! 🌙 E muet!',           fact: "La Lune s'éloigne de 4 cm par an!" },
-    étoile:     { msg: 'É-T-O-I-L-E! ⭐ Accent!',       fact: 'Notre Soleil est une étoile de taille moyenne!' },
-    soleil:     { msg: 'S-O-L-E-I-L! ☀️ 6 lettres!',   fact: 'La lumière du soleil met 8 minutes à arriver!' },
-    tigre:      { msg: 'T-I-G-R-E! 🐯 E muet!',         fact: "Aucun tigre n'a les mêmes rayures!" },
-    licorne:    { msg: 'L-I-C-O-R-N-E! 🦄 E muet!',    fact: "La licorne est l'animal national de l'Écosse!" },
-    eau:        { msg: 'E-A-U! 💧 3 lettres, 2 voyelles!', fact: "71% de la Terre est couverte d'eau!" },
-    baleine:    { msg: 'B-A-L-E-I-N-E! 🐋 7 lettres!', fact: 'La baleine bleue est le plus grand animal!' },
-    zèbre:      { msg: 'Z-È-B-R-E! 🦓 Accent grave!',  fact: 'Chaque zèbre a des rayures uniques!' },
-    papillon:   { msg: 'P-A-P-I-L-L-O-N! 🦋 Double L!', fact: 'Les papillons goûtent avec leurs pattes!' },
-    chocolat:   { msg: 'C-H-O-C-O-L-A-T! 🍫',          fact: '400 fèves font 500g de chocolat!' },
-    pingouin:   { msg: 'P-I-N-G-O-U-I-N! 🐧',          fact: 'Les pingouins offrent un caillou en cadeau!' },
-    fleur:      { msg: 'F-L-E-U-R! 🌸 5 lettres!',      fact: 'La plus grande fleur fait 90 cm de large!' },
-    pizza:      { msg: 'P-I-Z-Z-A! 🍕 Double Z!',       fact: 'La pizza vient de Naples en Italie!' },
-    arc:        { msg: 'A-R-C! 🌈 3 lettres!',          fact: "L'arc-en-ciel est en réalité un cercle complet!" },
-    bonjour:    { msg: 'B-O-N-J-O-U-R! 👋 7 lettres!', fact: 'Bonjour vient de "bon" + "jour"!' },
-    amour:      { msg: 'A-M-O-U-R! ❤️ 5 lettres!',     fact: 'Le mot amour vient du latin "amor"!' },
-    ami:        { msg: 'A-M-I! 👫 3 lettres!',           fact: 'Les meilleurs amis se souviennent des petits détails!' },
-  },
-
-  de: {
-    apfel:      { msg: 'A-P-F-E-L! 🍎 5 Buchstaben!',  fact: 'Es gibt über 7.500 Apfelsorten!' },
-    katze:      { msg: 'K-A-T-Z-E! 🐱 E am Ende!',     fact: 'Katzen schlafen bis zu 16 Stunden am Tag!' },
-    hund:       { msg: 'H-U-N-D! 🐶 4 Buchstaben!',    fact: 'Hunde riechen 40x besser als Menschen!' },
-    elefant:    { msg: 'E-L-E-F-A-N-T! 🐘',            fact: 'Elefanten vergessen nie!' },
-    fisch:      { msg: 'F-I-S-C-H! 🐟 5 Buchstaben!',  fact: 'Fische gibt es seit 500 Millionen Jahren!' },
-    löwe:       { msg: 'L-Ö-W-E! 🦁 Umlaut Ö!',        fact: 'Löwen schlafen bis zu 20 Stunden!' },
-    mond:       { msg: 'M-O-N-D! 🌙 4 Buchstaben!',    fact: 'Der Mond entfernt sich 4 cm pro Jahr!' },
-    stern:      { msg: 'S-T-E-R-N! ⭐ 5 Buchstaben!',  fact: 'Unsere Sonne ist ein mittelgroßer Stern!' },
-    sonne:      { msg: 'S-O-N-N-E! ☀️ Double N!',      fact: 'Sonnenlicht braucht 8 Minuten zur Erde!' },
-    tiger:      { msg: 'T-I-G-E-R! 🐯 5 Buchstaben!',  fact: 'Kein Tiger hat die gleichen Streifen!' },
-    wasser:     { msg: 'W-A-S-S-E-R! 💧 Double S!',    fact: '71% der Erde ist mit Wasser bedeckt!' },
-    wal:        { msg: 'W-A-L! 🐋 3 Buchstaben!',       fact: 'Blauwale sind die größten Tiere aller Zeiten!' },
-    zebra:      { msg: 'Z-E-B-R-A! 🦓 Beginnt mit Z!', fact: 'Jedes Zebra hat einzigartige Streifen!' },
-    schmetterling: { msg: 'S-C-H-M-E-T-T-E-R-L-I-N-G! 🦋', fact: 'Schmetterlinge schmecken mit ihren Füßen!' },
-    schokolade: { msg: 'S-C-H-O-K-O-L-A-D-E! 🍫',     fact: '400 Kakaobohnen ergeben ein Pfund Schokolade!' },
-    pinguin:    { msg: 'P-I-N-G-U-I-N! 🐧',            fact: 'Pinguine machen mit Kieselsteinen einen Heiratsantrag!' },
-    blume:      { msg: 'B-L-U-M-E! 🌸 5 Buchstaben!',  fact: 'Die größte Blume ist fast 1 Meter breit!' },
-    pizza:      { msg: 'P-I-Z-Z-A! 🍕 Double Z!',      fact: 'Pizza wurde in Neapel, Italien erfunden!' },
-    regenbogen: { msg: 'R-E-G-E-N-B-O-G-E-N! 🌈',     fact: 'Regenbögen sind eigentlich vollständige Kreise!' },
-    hallo:      { msg: 'H-A-L-L-O! 👋 Double L!',      fact: 'Hallo ist eine der bekanntesten Begrüßungen!' },
-    liebe:      { msg: 'L-I-E-B-E! ❤️ 5 Buchstaben!', fact: 'Das Wort Liebe gibt es seit dem Mittelhochdeutschen!' },
-    freund:     { msg: 'F-R-E-U-N-D! 👫',              fact: 'Freundschaft ist das wertvollste Gut!' },
-    schnee:     { msg: 'S-C-H-N-E-E! ❄️ Double E!',    fact: 'Keine zwei Schneeflocken sind gleich!' },
-    musik:      { msg: 'M-U-S-I-K! 🎵 5 Buchstaben!',  fact: 'Musik aktiviert mehr Gehirnbereiche als alles andere!' },
-  },
-
-  es: {
-    manzana:    { msg: 'M-A-N-Z-A-N-A! 🍎 7 letras!',  fact: '¡Hay más de 7.500 variedades de manzanas!' },
-    banana:     { msg: 'B-A-N-A-N-A! 🍌 NAN en el medio!', fact: '¡El plátano es técnicamente una baya!' },
-    gato:       { msg: 'G-A-T-O! 🐱 4 letras!',         fact: '¡Los gatos duermen hasta 16 horas al día!' },
-    perro:      { msg: 'P-E-R-R-O! 🐶 RR doble!',       fact: '¡Los perros huelen 40 veces mejor que nosotros!' },
-    elefante:   { msg: 'E-L-E-F-A-N-T-E! 🐘',          fact: '¡Los elefantes nunca olvidan!' },
-    pez:        { msg: 'P-E-Z! 🐟 3 letras!',            fact: '¡Los peces existen desde hace 500 millones de años!' },
-    jirafa:     { msg: 'J-I-R-A-F-A! 🦒 J suena H!',   fact: '¡La lengua de una jirafa mide 45 cm!' },
-    sol:        { msg: 'S-O-L! ☀️ Solo 3 letras!',      fact: '¡La luz del sol tarda 8 minutos en llegar!' },
-    luna:       { msg: 'L-U-N-A! 🌙 4 letras!',         fact: '¡La Luna se aleja 4 cm cada año!' },
-    estrella:   { msg: 'E-S-T-R-E-L-L-A! ⭐ Double L!', fact: '¡Nuestro Sol es una estrella de tamaño medio!' },
-    tigre:      { msg: 'T-I-G-R-E! 🐯 5 letras!',       fact: '¡Ningún tigre tiene las mismas rayas!' },
-    agua:       { msg: 'A-G-U-A! 💧 4 letras!',         fact: '¡El 71% de la Tierra está cubierto de agua!' },
-    arcoíris:   { msg: 'A-R-C-O-Í-R-I-S! 🌈 Acento!',  fact: '¡Los arcoíris son en realidad círculos completos!' },
-    mariposa:   { msg: 'M-A-R-I-P-O-S-A! 🦋 8 letras!', fact: '¡Las mariposas prueban con sus patas!' },
-    chocolate:  { msg: 'C-H-O-C-O-L-A-T-E! 🍫',        fact: '¡400 granos de cacao hacen una libra de chocolate!' },
-    pingüino:   { msg: 'P-I-N-G-Ü-I-N-O! 🐧 Diéresis!', fact: '¡Los pingüinos proponen con una piedra!' },
-    flor:       { msg: 'F-L-O-R! 🌸 4 letras!',         fact: '¡La flor más grande mide casi 1 metro!' },
-    pizza:      { msg: 'P-I-Z-Z-A! 🍕 Doble Z!',        fact: '¡La pizza fue inventada en Nápoles, Italia!' },
-    nieve:      { msg: 'N-I-E-V-E! ❄️ 5 letras!',       fact: '¡Ningún copo de nieve es exactamente igual!' },
-    hola:       { msg: 'H-O-L-A! 👋 4 letras!',          fact: '¡Hola es una de las palabras más felices!' },
-    amor:       { msg: 'A-M-O-R! ❤️ 4 letras!',         fact: '¡La palabra amor viene del latín "amor"!' },
-    amigo:      { msg: 'A-M-I-G-O! 👫 5 letras!',       fact: '¡Los mejores amigos se recuerdan en los detalles!' },
-    música:     { msg: 'M-Ú-S-I-C-A! 🎵 Acento!',       fact: '¡La música activa más áreas del cerebro que cualquier otra cosa!' },
-  },
-
-  ru: {
-    яблоко:  { msg: 'Я-Б-Л-О-К-О! 🍎 6 букв!',        fact: 'Существует более 7500 сортов яблок!' },
-    банан:   { msg: 'Б-А-Н-А-Н! 🍌 5 букв!',            fact: 'Банан технически является ягодой!' },
-    кот:     { msg: 'К-О-Т! 🐱 3 буквы!',               fact: 'Коты спят до 16 часов в день!' },
-    собака:  { msg: 'С-О-Б-А-К-А! 🐶 6 букв!',         fact: 'Собаки нюхают в 40 раз лучше людей!' },
-    слон:    { msg: 'С-Л-О-Н! 🐘 4 буквы!',             fact: 'Слоны никогда не забывают!' },
-    рыба:    { msg: 'Р-Ы-Б-А! 🐟 4 буквы!',             fact: 'Рыбы существуют 500 миллионов лет!' },
-    жираф:   { msg: 'Ж-И-Р-А-Ф! 🦒 5 букв!',           fact: 'Язык жирафа длиной 45 см!' },
-    лев:     { msg: 'Л-Е-В! 🦁 3 буквы!',               fact: 'Львы спят до 20 часов в день!' },
-    луна:    { msg: 'Л-У-Н-А! 🌙 4 буквы!',             fact: 'Луна удаляется на 4 см в год!' },
-    звезда:  { msg: 'З-В-Е-З-Д-А! ⭐ 6 букв!',         fact: 'Наше Солнце — звезда среднего размера!' },
-    солнце:  { msg: 'С-О-Л-Н-Ц-Е! ☀️ 6 букв!',        fact: 'Солнечный свет достигает Земли за 8 минут!' },
-    тигр:    { msg: 'Т-И-Г-Р! 🐯 4 буквы!',             fact: 'У каждого тигра уникальные полоски!' },
-    кит:     { msg: 'К-И-Т! 🐋 3 буквы!',               fact: 'Синий кит — самое большое животное!' },
-    зебра:   { msg: 'З-Е-Б-Р-А! 🦓 5 букв!',            fact: 'У каждой зебры уникальные полосы!' },
-    бабочка: { msg: 'Б-А-Б-О-Ч-К-А! 🦋 7 букв!',       fact: 'Бабочки пробуют пищу лапками!' },
-    шоколад: { msg: 'Ш-О-К-О-Л-А-Д! 🍫 7 букв!',       fact: '400 зёрен какао — это 500 г шоколада!' },
-    пингвин: { msg: 'П-И-Н-Г-В-И-Н! 🐧 7 букв!',       fact: 'Пингвины делают предложение с камешком!' },
-    цветок:  { msg: 'Ц-В-Е-Т-О-К! 🌸 6 букв!',         fact: 'Самый большой цветок почти 1 метр!' },
-    радуга:  { msg: 'Р-А-Д-У-Г-А! 🌈 6 букв!',         fact: 'Радуга — это на самом деле полный круг!' },
-    снег:    { msg: 'С-Н-Е-Г! ❄️ 4 буквы!',             fact: 'Нет двух одинаковых снежинок!' },
-    привет:  { msg: 'П-Р-И-В-Е-Т! 👋 6 букв!',         fact: 'Привет — одно из самых тёплых слов!' },
-    любовь:  { msg: 'Л-Ю-Б-О-В-Ь! ❤️ Мягкий знак!',   fact: 'Слово любовь пришло из старославянского!' },
-    друг:    { msg: 'Д-Р-У-Г! 👫 4 буквы!',             fact: 'Настоящих друзей в жизни немного!' },
-    музыка:  { msg: 'М-У-З-Ы-К-А! 🎵 6 букв!',         fact: 'Музыка активирует больше зон мозга, чем что-либо!' },
-  },
-
-  it: {
-    mela:       { msg: 'M-E-L-A! 🍎 4 lettere!',        fact: 'Ci sono oltre 7.500 varietà di mele!' },
-    banana:     { msg: 'B-A-N-A-N-A! 🍌 NAN in mezzo!', fact: 'La banana è tecnicamente una bacca!' },
-    gatto:      { msg: 'G-A-T-T-O! 🐱 Doppia T!',       fact: 'I gatti dormono fino a 16 ore al giorno!' },
-    cane:       { msg: 'C-A-N-E! 🐶 E finale muto!',    fact: 'I cani annusano 40 volte meglio degli umani!' },
-    elefante:   { msg: 'E-L-E-F-A-N-T-E! 🐘',          fact: 'Gli elefanti non dimenticano mai!' },
-    pesce:      { msg: 'P-E-S-C-E! 🐟 5 lettere!',      fact: 'I pesci esistono da 500 milioni di anni!' },
-    giraffa:    { msg: 'G-I-R-A-F-F-A! 🦒 Doppia F!',  fact: 'La lingua della giraffa è lunga 45 cm!' },
-    leone:      { msg: 'L-E-O-N-E! 🦁 E finale!',       fact: 'I leoni dormono fino a 20 ore al giorno!' },
-    luna:       { msg: 'L-U-N-A! 🌙 4 lettere!',        fact: 'La Luna si allontana di 4 cm ogni anno!' },
-    stella:     { msg: 'S-T-E-L-L-A! ⭐ Doppia L!',    fact: 'Il nostro Sole è una stella di media grandezza!' },
-    sole:       { msg: 'S-O-L-E! ☀️ E finale!',         fact: 'La luce del sole impiega 8 minuti a raggiungerci!' },
-    tigre:      { msg: 'T-I-G-R-E! 🐯 E finale!',       fact: 'Nessuna tigre ha le stesse strisce!' },
-    acqua:      { msg: 'A-C-Q-U-A! 💧 QU insieme!',    fact: "Il 71% della Terra è coperto d'acqua!" },
-    balena:     { msg: 'B-A-L-E-N-A! 🐋 6 lettere!',   fact: 'La balena blu è il più grande animale di sempre!' },
-    farfalla:   { msg: 'F-A-R-F-A-L-L-A! 🦋 Doppia L!', fact: 'Le farfalle sentono il gusto con i piedi!' },
-    cioccolato: { msg: 'C-I-O-C-C-O-L-A-T-O! 🍫',      fact: '400 chicchi di cacao = 500g di cioccolato!' },
-    pinguino:   { msg: 'P-I-N-G-U-I-N-O! 🐧',          fact: 'I pinguini fanno la proposta con un sassolino!' },
-    fiore:      { msg: 'F-I-O-R-E! 🌸 E finale!',       fact: 'Il fiore più grande è lungo quasi 1 metro!' },
-    pizza:      { msg: 'P-I-Z-Z-A! 🍕 Doppia Z!',       fact: 'La pizza è stata inventata a Napoli!' },
-    arcobaleno: { msg: 'A-R-C-O-B-A-L-E-N-O! 🌈',      fact: "L'arcobaleno è in realtà un cerchio completo!" },
-    ciao:       { msg: 'C-I-A-O! 👋 4 lettere!',        fact: '"Ciao" si usa sia per salutare che per congedarsi!' },
-    amore:      { msg: 'A-M-O-R-E! ❤️ E finale!',      fact: 'La parola amore viene dal latino "amor"!' },
-    amico:      { msg: 'A-M-I-C-O! 👫 5 lettere!',     fact: 'I migliori amici ricordano i piccoli dettagli!' },
-    musica:     { msg: 'M-U-S-I-C-A! 🎵 6 lettere!',   fact: 'La musica attiva più aree del cervello di qualsiasi altra cosa!' },
-  },
-
-  sr: {
-    јабука:   { msg: 'Ј-А-Б-У-К-А! 🍎 6 слова!',       fact: 'Постоји преко 7.500 врста јабука!' },
-    банана:   { msg: 'Б-А-Н-А-Н-А! 🍌 НАН у средини!', fact: 'Банана је технички бобица!' },
-    мачка:    { msg: 'М-А-Ч-К-А! 🐱 5 слова!',          fact: 'Мачке спавају до 16 сати дневно!' },
-    пас:      { msg: 'П-А-С! 🐶 3 слова!',               fact: 'Пси мирише 40 пута боље од нас!' },
-    слон:     { msg: 'С-Л-О-Н! 🐘 4 слова!',             fact: 'Слонови никад не заборављају!' },
-    риба:     { msg: 'Р-И-Б-А! 🐟 4 слова!',             fact: 'Рибе постоје 500 милиона година!' },
-    жирафа:   { msg: 'Ж-И-Р-А-Ф-А! 🦒 6 слова!',       fact: 'Жирафин језик је дугачак 45 цм!' },
-    лав:      { msg: 'Л-А-В! 🦁 3 слова!',               fact: 'Лавови спавају до 20 сати дневно!' },
-    месец:    { msg: 'М-Е-С-Е-Ц! 🌙 5 слова!',          fact: 'Месец се удаљава 4 цм сваке године!' },
-    звезда:   { msg: 'З-В-Е-З-Д-А! ⭐ 6 слова!',        fact: 'Наше Сунце је звезда средње величине!' },
-    сунце:    { msg: 'С-У-Н-Ц-Е! ☀️ 5 слова!',         fact: 'Сунчева светлост стиже за 8 минута!' },
-    тигар:    { msg: 'Т-И-Г-А-Р! 🐯 5 слова!',          fact: 'Сваки тигар има јединствене пруге!' },
-    вода:     { msg: 'В-О-Д-А! 💧 4 слова!',             fact: '71% Земље је прекривено водом!' },
-    кит:      { msg: 'К-И-Т! 🐋 3 слова!',               fact: 'Плави кит је највећа животиња икад!' },
-    зебра:    { msg: 'З-Е-Б-Р-А! 🦓 5 слова!',           fact: 'Свака зебра има јединствене пруге!' },
-    лептир:   { msg: 'Л-Е-П-Т-И-Р! 🦋 6 слова!',       fact: 'Лептири кусају храну ногама!' },
-    чоколада: { msg: 'Ч-О-К-О-Л-А-Д-А! 🍫 8 слова!',   fact: '400 зрна какаа = 500г чоколаде!' },
-    пингвин:  { msg: 'П-И-Н-Г-В-И-Н! 🐧 7 слова!',     fact: 'Пингвини проседе са каменчићем!' },
-    цвет:     { msg: 'Ц-В-Е-Т! 🌸 4 слова!',             fact: 'Највећи цвет је скоро 1 метар!' },
-    дуга:     { msg: 'Д-У-Г-А! 🌈 4 слова!',             fact: 'Дуга је заправо пун круг!' },
-    снег:     { msg: 'С-Н-Е-Г! ❄️ 4 слова!',             fact: 'Нема два иста пахуљица!' },
-    здраво:   { msg: 'З-Д-Р-А-В-О! 👋 6 слова!',        fact: 'Здраво је топла и радосна реч!' },
-    љубав:    { msg: 'Љ-У-Б-А-В! ❤️ 5 слова!',          fact: 'Реч љубав је стара колико и српски језик!' },
-    пријатељ: { msg: 'П-Р-И-Ј-А-Т-Е-Љ! 👫 8 слова!',  fact: 'Прави пријатељи се памте заувек!' },
-    музика:   { msg: 'М-У-З-И-К-А! 🎵 6 слова!',        fact: 'Музика активира више делова мозга него ишта друго!' },
-  },
-
-  zh: {
-    '苹果': { msg: '苹-果! 🍎 2个字!',       fact: '苹果有超过7500个品种！' },
-    '香蕉': { msg: '香-蕉! 🍌 2个字!',       fact: '香蕉技术上是一种浆果！' },
-    '猫':   { msg: '猫! 🐱 1个字!',          fact: '猫每天睡16个小时！' },
-    '狗':   { msg: '狗! 🐶 1个字!',          fact: '狗的嗅觉比人强40倍！' },
-    '大象': { msg: '大-象! 🐘 2个字!',       fact: '大象从不忘记！' },
-    '鱼':   { msg: '鱼! 🐟 1个字!',          fact: '鱼类存在了5亿年！' },
-    '长颈鹿': { msg: '长-颈-鹿! 🦒 3个字!', fact: '长颈鹿的舌头有45厘米长！' },
-    '狮子': { msg: '狮-子! 🦁 2个字!',       fact: '狮子每天睡多达20小时！' },
-    '月亮': { msg: '月-亮! 🌙 2个字!',       fact: '月亮每年远离我们4厘米！' },
-    '星星': { msg: '星-星! ⭐ 2个字!',       fact: '我们的太阳是一颗中等大小的星星！' },
-    '太阳': { msg: '太-阳! ☀️ 2个字!',       fact: '阳光到达地球需要8分钟！' },
-    '老虎': { msg: '老-虎! 🐯 2个字!',       fact: '没有两只老虎有相同的条纹！' },
-    '水':   { msg: '水! 💧 1个字!',          fact: '地球71%都被水覆盖！' },
-    '鲸鱼': { msg: '鲸-鱼! 🐋 2个字!',      fact: '蓝鲸是有史以来最大的动物！' },
-    '斑马': { msg: '斑-马! 🦓 2个字!',       fact: '每匹斑马的条纹都是独一无二的！' },
-    '蝴蝶': { msg: '蝴-蝶! 🦋 2个字!',       fact: '蝴蝶用脚品尝食物！' },
-    '巧克力': { msg: '巧-克-力! 🍫 3个字!', fact: '400颗可可豆可以制成500克巧克力！' },
-    '企鹅': { msg: '企-鹅! 🐧 2个字!',       fact: '企鹅用鹅卵石求婚！' },
-    '花':   { msg: '花! 🌸 1个字!',          fact: '世界上最大的花将近1米宽！' },
-    '彩虹': { msg: '彩-虹! 🌈 2个字!',       fact: '彩虹其实是完整的圆！' },
-    '雪':   { msg: '雪! ❄️ 1个字!',          fact: '没有两片雪花是完全相同的！' },
-    '你好': { msg: '你-好! 👋 2个字!',       fact: '"你好"是最常用的中文问候语！' },
-    '爱':   { msg: '爱! ❤️ 1个字!',          fact: '"爱"是汉字中最美丽的字之一！' },
-    '朋友': { msg: '朋-友! 👫 2个字!',       fact: '朋友是人生中最宝贵的财富！' },
-    '音乐': { msg: '音-乐! 🎵 2个字!',       fact: '音乐能激活比任何其他活动更多的大脑区域！' },
-  },
-};
-
-// ── AI Agent: enriches any unknown word via Claude API ───────────
-const wordCache = {};
-
-function wordFallback(word, lang) {
-  const letters = word.toUpperCase().split('').join('-');
-  const cfg = LANG_CONFIG[lang];
-  const factMap = { en:'Great word!', fr:'Super mot!', de:'Tolles Wort!', es:'¡Gran palabra!', ru:'Отличное слово!', it:'Ottima parola!', sr:'Одлична реч!', zh:'很棒的词！' };
-  return { word, msg: `${letters}! 🌟`, fact: factMap[lang] || 'Great word!' };
-}
-
-// ── Serbian Latin → Cyrillic transliteration ────────────────────
-const SR_LAT_TO_CYR = {
-  'lj':'љ','nj':'њ','dž':'џ','dj':'ђ','Lj':'Љ','Nj':'Њ','Dž':'Џ','Dj':'Ђ',
-  'a':'а','b':'б','c':'ц','č':'ч','ć':'ћ','d':'д','đ':'ђ','e':'е','f':'ф',
-  'g':'г','h':'х','i':'и','j':'ј','k':'к','l':'л','m':'м','n':'н','o':'о',
-  'p':'п','r':'р','s':'с','š':'ш','t':'т','u':'у','v':'в','z':'з','ž':'ж',
-  'A':'А','B':'Б','C':'Ц','Č':'Ч','Ć':'Ћ','D':'Д','Đ':'Ђ','E':'Е','F':'Ф',
-  'G':'Г','H':'Х','I':'И','J':'Ј','K':'К','L':'Л','M':'М','N':'Н','O':'О',
-  'P':'П','R':'Р','S':'С','Š':'Ш','T':'Т','U':'У','V':'В','Z':'З','Ž':'Ж',
-};
-
-function srLatinToCyrillic(text) {
-  // Handle digraphs first (lj, nj, dž, dj)
-  let result = text
-    .replace(/lj/gi, m => m[0] === m[0].toUpperCase() ? 'Љ' : 'љ')
-    .replace(/nj/gi, m => m[0] === m[0].toUpperCase() ? 'Њ' : 'њ')
-    .replace(/dž/gi, m => m[0] === m[0].toUpperCase() ? 'Џ' : 'џ')
-    .replace(/dj/gi, m => m[0] === m[0].toUpperCase() ? 'Ђ' : 'ђ');
-  // Then single chars
-  return result.split('').map(ch => SR_LAT_TO_CYR[ch] || ch).join('');
-}
-
-function getWordData(word, lang) {
-  const key = word.toLowerCase().trim();
-  const cacheKey = key + '|' + lang;
-  if (wordCache[cacheKey]) return wordCache[cacheKey];
-  const data = WORD_DATA[lang];
-  if (data && data[key]) return { word: key, ...data[key] };
-  // Chinese: try direct lookup
-  if (lang === 'zh' && data && data[word]) return { word, ...data[word] };
-  // Serbian: if voice returned Latin, convert to Cyrillic and try again
-  if (lang === 'sr') {
-    const cyr = srLatinToCyrillic(key);
-    if (data && data[cyr]) return { word: cyr, ...data[cyr] };
-    // Also try original capitalised Cyrillic key
-    const cyrOrig = srLatinToCyrillic(word.trim());
-    if (data && data[cyrOrig]) return { word: cyrOrig, ...data[cyrOrig] };
-  }
-  return wordFallback(lang === 'sr' ? srLatinToCyrillic(key) : key, lang);
-}
-
-function enrichWordAsync(word, lang) {
-  // For Serbian, always work in Cyrillic
-  const actualWord = lang === 'sr' ? srLatinToCyrillic(word.trim()) : word;
-  const key = lang === 'sr' ? actualWord : actualWord.toLowerCase().trim();
-  const cacheKey = key + '|' + lang;
-  if (wordCache[cacheKey]) return;
-  const data = WORD_DATA[lang];
-  if (data && (data[key] || data[actualWord])) return;
-  if (!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY === 'YOUR_API_KEY') return;
-
-  const cfg = LANG_CONFIG[lang];
-  const systemPrompt = `You are a spelling teacher for young children. 
-The user says a word in ${cfg.name}. 
-Return ONLY valid JSON (no markdown, no backticks):
-{"word":"<correct ${cfg.name} spelling>","msg":"<hyphenated letters with spaces like C-A-T! + 1 emoji + short note>","fact":"<super fun kid fact about the word in ${cfg.name}, max 10 words>"}
-For non-Latin scripts (Russian, Serbian, Chinese) use the actual script letters separated by hyphens.`;
-
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: word }]
-    })
-  })
-  .then(r => r.ok ? r.json() : null)
-  .then(data => {
-    if (!data) return;
-    const raw = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(raw);
-    const result = {
-      word:  (parsed.word || word).trim(),
-      msg:   parsed.msg  || wordFallback(word, lang).msg,
-      fact:  parsed.fact || wordFallback(word, lang).fact,
-    };
-    wordCache[cacheKey] = result;
-    const wk = result.word.toLowerCase();
-    if (currentWord === key || currentWord === wk) {
-      document.getElementById('funFact').textContent   = '💡 ' + result.fact;
-      document.getElementById('bubbleText').textContent = result.msg;
-      showLetters(result.word, lang);
-      currentWord = result.word;
-    }
-  }).catch(() => {});
-}
-
-// ── NLU: strip filler words and extract the target word ──────────
-const STRIP_PATTERNS = [
-  /^(hey\s+)?(world\s*spell\s*bot|worldspellbot|spell\s*bot|spellbot)[,\s]*/i,
-  /(can\s+you|could\s+you|please|will\s+you)/gi,
-  /(how\s+(do\s+you|to|do\s+i)\s+spell)/gi,
-  /(spell\s+out|spell\s+the\s+word|spell)/gi,
-  /(what\s+is\s+the\s+spelling\s+of|spelling\s+of)/gi,
-  /(teach\s+me|show\s+me|tell\s+me|help\s+me)/gi,
-  /(the\s+word|a\s+word|word)/gi,
-  /(what\s+is|what's|how\s+is)/gi,
-  /(hey|hi|hello|ok|okay|um+|uh+|er+)\b/gi,
-  /[?!.,]/g,
+// ════════════════════════════════════
+// FOOTBALL PHOTOS
+// ════════════════════════════════════
+const FB_PHOTOS = [
+  {u:'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport01/300/200'},
+  {u:'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport02/300/200'},
+  {u:'https://images.unsplash.com/photo-1522778526097-ce0a22ceb253?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport03/300/200'},
+  {u:'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport04/300/200'},
+  {u:'https://images.unsplash.com/photo-1459865264687-595d652de67e?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport05/300/200'},
+  {u:'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport06/300/200'},
+  {u:'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport07/300/200'},
+  {u:'https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport08/300/200'},
+  {u:'https://images.unsplash.com/photo-1504016798967-59a258e9383c?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport09/300/200'},
+  {u:'https://images.unsplash.com/photo-1529900748604-07564a03e7a6?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport10/300/200'},
+  {u:'https://images.unsplash.com/photo-1518604666860-9ed391f76460?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport11/300/200'},
+  {u:'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?ixlib=rb-4.0.3&w=300&h=200&fit=crop&q=80', f:'https://picsum.photos/seed/sport12/300/200'},
 ];
 
-function parseTranscript(t) {
-  let text = t.toLowerCase().trim();
-  for (const p of STRIP_PATTERNS) text = text.replace(p, ' ');
-  text = text.replace(/\s+/, ' ').trim();
-  const words = text.split(' ').filter(w => w.length >= 1);
-  if (!words.length) return null;
-  return words[words.length - 1];
+let _thumbIdx = Math.floor(Math.random() * 12);
+function nextThumb() {
+  const p = FB_PHOTOS[_thumbIdx % FB_PHOTOS.length];
+  _thumbIdx++;
+  return `<img src="${p.u}" alt="⚽" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${p.f}';}else{this.outerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#1a4d1a 0%,#2d8a2d 100%);display:flex;align-items:center;justify-content:center;font-size:26px\'>⚽</div>';}">`;
 }
 
-function handleVoiceInput(transcript) {
-  if (!transcript || !transcript.trim()) {
-    setBotState('');
-    setBubble(LANG_CONFIG[currentLang].greeting);
-    return;
-  }
-
-  // For Cyrillic/CJK use transcript directly
-  if (currentLang === 'zh' || currentLang === 'ru' || currentLang === 'sr') {
-    const trimmed = transcript.trim();
-    if (trimmed) { doSpell(trimmed); return; }
-  }
-
-  const word = parseTranscript(transcript);
-  if (!word) {
-    // Fallback — just use the last word of the transcript as-is
-    const raw = transcript.trim().split(/\s+/).pop();
-    if (raw && raw.length >= 1) {
-      doSpell(raw);
-    } else {
-      setBotState('');
-      setBubble(LANG_CONFIG[currentLang].greeting);
-    }
-    return;
-  }
-  doSpell(word);
+function srcClass(izvor) {
+  if (!izvor) return '';
+  const l = izvor.toLowerCase();
+  if (l.includes('фсс') || l.includes('fss')) return 'src-fss';
+  if (l.includes('мозарт') || l.includes('mozzart')) return 'src-mozzart';
+  if (l.includes('танјуг') || l.includes('tanjug')) return 'src-tanjug';
+  if (l.includes('б92') || l.includes('b92')) return 'src-b92';
+  if (l.includes('курир') || l.includes('kurir')) return 'src-kurir';
+  return '';
 }
 
-// ── Core spell ───────────────────────────────────────────────────
-function doSpell(word) {
-  if (!word) return;
-  cancelSpeech();
-  stopMic();
-
-  const data = getWordData(word.toLowerCase().trim(), currentLang);
-  currentWord = data.word;
-
-  setBotState('thinking');
-  const cfg = LANG_CONFIG[currentLang];
-  setBubble(cfg.thinking);
-  clearLetters();
-  document.getElementById('funFact').classList.remove('visible');
-
-  // iOS needs extra time for mic audio session to close before TTS can open
-  const delay = isIOS ? 1000 : 400;
-
-  setTimeout(() => {
-    setBotState('speaking');
-    setBubble(data.msg);
-    showLetters(data.word, currentLang);
-    document.getElementById('funFact').textContent = '💡 ' + data.fact;
-    document.getElementById('funFact').classList.add('visible');
-    document.getElementById('readBtn').disabled      = false;
-    document.getElementById('spellAloudBtn').disabled = false;
-    scores.words++;
-    scores.streak++;
-    if (scores.words % 3 === 0) { scores.stars++; popStar(); }
-    updateScore();
-    enrichWordAsync(data.word, currentLang);
-    spellAloudThen(() => setBotState(''));
-  }, delay);
+function decodeHtml(str) {
+  if (!str) return str;
+  const txt = document.createElement('textarea');
+  txt.innerHTML = str;
+  return txt.value;
 }
 
-// ── Language switch — always FULL RESET ─────────────────────────
-function setLang(lang) {
-  cancelSpeech();
-  stopMic();
-  currentLang = lang;
-  currentWord  = '';
-
-  // Update EN button active state
-  const enBtn = document.getElementById('enBtn');
-  enBtn.classList.toggle('active', lang === 'en');
-
-  // Update globe button label and icon
-  const cfg = LANG_CONFIG[lang];
-  const label = document.getElementById('selectedLangLabel');
-  const globeIcon = document.getElementById('globeIcon');
-  const globeBtn = document.getElementById('globeBtn');
-  if (lang === 'en') {
-    label.textContent = 'Choose language…';
-    globeIcon.innerHTML = '🌐';
-    globeBtn.style.borderColor = '';
-  } else {
-    label.textContent = cfg.name;
-    globeIcon.innerHTML = `<img src="${cfg.flagImg}" alt="${lang.toUpperCase()}">`;
-    globeBtn.style.borderColor = '#c77dff';
-    // mark dropdown option
-    document.querySelectorAll('.lang-option').forEach(opt => {
-      opt.classList.toggle('selected', opt.querySelector('.lname')?.textContent === cfg.name);
-    });
-  }
-
-  closeDropdown();
-
-  // Full reset
-  clearLetters();
-  document.getElementById('funFact').classList.remove('visible');
-  document.getElementById('funFact').textContent = '';
-  document.getElementById('readBtn').disabled      = true;
-  document.getElementById('spellAloudBtn').disabled = true;
-  document.getElementById('readBtn').textContent       = cfg.readBtn;
-  document.getElementById('spellAloudBtn').textContent  = cfg.spellAloud;
-
-  setBotState('');
-  setBubble(cfg.greeting);
-
-  // Update scores label language
-  updateScore();
+const LAT_CYR = [
+  ['lj','љ'],['nj','њ'],['dž','џ'],['Lj','Љ'],['Nj','Њ'],['Dž','Џ'],['LJ','Љ'],['NJ','Њ'],['DŽ','Џ'],
+  ['A','А'],['B','Б'],['V','В'],['G','Г'],['D','Д'],['Đ','Ђ'],['E','Е'],['Ž','Ж'],['Z','З'],['I','И'],
+  ['J','Ј'],['K','К'],['L','Л'],['M','М'],['N','Н'],['O','О'],['P','П'],['R','Р'],['S','С'],['T','Т'],
+  ['Ć','Ћ'],['U','У'],['F','Ф'],['H','Х'],['C','Ц'],['Č','Ч'],['Š','Ш'],
+  ['a','а'],['b','б'],['v','в'],['g','г'],['d','д'],['đ','ђ'],['e','е'],['ž','ж'],['z','з'],['i','и'],
+  ['j','ј'],['k','к'],['l','л'],['m','м'],['n','н'],['o','о'],['p','п'],['r','р'],['s','с'],['t','т'],
+  ['ć','ћ'],['u','у'],['f','ф'],['h','х'],['c','ц'],['č','ч'],['š','ш'],
+];
+function latCyr(str) {
+  if (!str) return str;
+  if (/[Ѐ-ӿ]/.test(str)) return str;
+  let out = str;
+  for (const [l,c] of LAT_CYR) out = out.split(l).join(c);
+  return out;
 }
 
-// ── Dropdown ─────────────────────────────────────────────────────
-function toggleDropdown() {
-  const dd  = document.getElementById('langDropdown');
-  const btn = document.getElementById('globeBtn');
-  const open = dd.classList.toggle('open');
-  btn.classList.toggle('open', open);
+async function fetchRSS(url) {
+  const mkProxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}&t=${Date.now()}`,
+    u => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(u)}`,
+    u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+    u => `https://corsproxy.org/?${encodeURIComponent(u)}`,
+  ];
+  const race = mkProxies.map(mk =>
+    fetch(mk(url), {signal: AbortSignal.timeout(10000)})
+      .then(r => r.ok ? r.text() : Promise.reject('not ok'))
+      .then(txt => txt && txt.includes('<item') ? txt : Promise.reject('no items'))
+  );
+  return Promise.any(race).catch(() => { throw new Error('Сви proxy неуспешни'); });
 }
 
-function closeDropdown() {
-  document.getElementById('langDropdown').classList.remove('open');
-  document.getElementById('globeBtn').classList.remove('open');
-}
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.globe-dropdown-wrap')) closeDropdown();
-});
-
-// ── Letter display ────────────────────────────────────────────────
-function showLetters(word, lang) {
-  const container = document.getElementById('letterDisplay');
-  container.innerHTML = '';
-  const isCJK = lang === 'zh';
-
-  word.split('').forEach((ch, i) => {
-    const box = document.createElement('div');
-    if (ch === ' ') {
-      box.className = 'letter-box space';
-    } else {
-      const lower = ch.toLowerCase();
-      const isCyrillic = /[\u0400-\u04FF]/.test(ch);
-      const isChinese  = /[\u4E00-\u9FFF]/.test(ch);
-      const isAccent   = /[àáâãäåæçèéêëìíîïòóôõöùúûüýéčšžđćž]/i.test(ch);
-      const isVowel    = VOWELS.has(lower) && !isAccent;
-
-      if (isChinese)        box.className = 'letter-box special';
-      else if (isCyrillic)  box.className = 'letter-box';
-      else if (isAccent)    box.className = 'letter-box accent';
-      else if (isVowel)     box.className = 'letter-box vowel';
-      else                  box.className = 'letter-box';
-
-      box.textContent = isCJK ? ch : ch.toUpperCase();
-      if (isChinese) box.style.fontSize = '1.35rem';
-      box.style.animationDelay = (i * 0.07) + 's';
-    }
-    container.appendChild(box);
-  });
-}
-
-function clearLetters() {
-  document.getElementById('letterDisplay').innerHTML = '';
-}
-
-// ── Score ─────────────────────────────────────────────────────────
-function updateScore() {
-  document.getElementById('scoreWords').textContent  = scores.words;
-  document.getElementById('scoreStreak').textContent = scores.streak;
-  document.getElementById('scoreStars').textContent  = '⭐'.repeat(Math.min(scores.stars, 5)) || '⭐';
-}
-
-function popStar() {
-  const el = document.createElement('div');
-  el.className = 'star-pop';
-  el.textContent = '⭐';
-  el.style.left = (30 + Math.random() * 40) + 'vw';
-  el.style.top  = '40vh';
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1300);
-}
-
-// ── Bot state ─────────────────────────────────────────────────────
-function setBubble(text) {
-  document.getElementById('bubbleText').textContent = text;
-}
-
-function setBotState(state) {
-  const bot = document.getElementById('botFace');
-  bot.className = 'bot-face' + (state ? ' ' + state : '');
-  const map = { '': 'mouth-idle', speaking: 'mouth-speaking', thinking: 'mouth-thinking', listening: 'mouth-listening' };
-  ['mouth-idle','mouth-speaking','mouth-thinking','mouth-listening'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.className = 'bot-mouth' + (id === map[state || ''] ? ' active' : '');
-  });
-  const pL = document.getElementById('pupilL');
-  const pR = document.getElementById('pupilR');
-  if (pL && pR) {
-    const cy = state === 'thinking' ? '33' : state === 'listening' ? '36' : '35';
-    pL.setAttribute('cy', cy); pR.setAttribute('cy', cy);
-  }
-  if (state !== 'speaking') stopMouthTalk();
-  const hint = document.getElementById('tapHint');
-  if (hint) hint.style.opacity = (!state || state === '') ? '1' : '0';
-}
-
-// ── Mouth animation ───────────────────────────────────────────────
-let mouthTimer = null, mouthOpen = false;
-function startMouthTalk() {
-  if (mouthTimer) return;
-  mouthTimer = setInterval(() => {
-    mouthOpen = !mouthOpen;
-    const lower  = document.getElementById('mouth-lower');
-    const tongue = document.getElementById('mouth-tongue');
-    if (lower)  lower.setAttribute('d', mouthOpen ? 'M28 50 Q40 64 52 50' : 'M28 50 Q40 58 52 50');
-    if (tongue) tongue.setAttribute('opacity', mouthOpen ? '0.9' : '0');
-  }, 180);
-}
-function stopMouthTalk() {
-  if (mouthTimer) { clearInterval(mouthTimer); mouthTimer = null; }
-  const lower  = document.getElementById('mouth-lower');
-  const tongue = document.getElementById('mouth-tongue');
-  if (lower)  lower.setAttribute('d', 'M28 50 Q40 58 52 50');
-  if (tongue) tongue.setAttribute('opacity', '0');
-}
-
-// ── TTS ───────────────────────────────────────────────────────────
-const synth = window.speechSynthesis;
-let preferredVoice = {};
-
-function loadVoices() {
-  if (!synth) return;
-  const all = synth.getVoices();
-  if (!all.length) return;
-  const rank = v => (/natural|enhanced|premium/i.test(v.name) ? 10 : 0) + (/google/i.test(v.name) ? 5 : 0);
-  Object.keys(LANG_CONFIG).forEach(lang => {
-    const tts  = LANG_CONFIG[lang].tts;
-    const base = tts.split('-')[0];
-    preferredVoice[lang] = all
-      .filter(v => v.lang.startsWith(base))
-      .sort((a, b) => rank(b) - rank(a))[0] || null;
-  });
-  // Serbian fallback: if no sr voice found, use Russian (Slavic, same Cyrillic sounds)
-  if (!preferredVoice['sr']) {
-    preferredVoice['sr'] = preferredVoice['ru'] || null;
-  }
-}
-if (synth) { synth.onvoiceschanged = loadVoices; loadVoices(); }
-
-function cancelSpeech() {
-  if (!synth) return;
-  synth.cancel();
-  stopMouthTalk();
-}
-
-function speak(text, lang, rate, pitch, onDone) {
-  if (!synth) { if (onDone) onDone(); return; }
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang  = LANG_CONFIG[lang]?.tts || 'en-US';
-  utt.rate  = rate  || 0.88;
-  utt.pitch = pitch || 1.1;
-  // Use exact language voice — Serbian falls back to Russian in loadVoices()
-  // Never use English voice for non-English languages
-  const v = preferredVoice[lang];
-  if (v) {
-    utt.voice = v;
-    // If using Russian voice for Serbian, keep lang hint as sr-RS for correct phonemes
-    if (lang === 'sr' && v.lang.startsWith('ru')) utt.lang = 'ru-RU';
-  }
-  let finished = false;
-  const finish = () => {
-    if (finished) return; finished = true;
-    stopMouthTalk(); if (onDone) onDone();
-  };
-  utt.onstart = () => startMouthTalk();
-  utt.onend   = finish;
-  utt.onerror = e => { if (e.error !== 'interrupted') console.warn('TTS:', e.error); finish(); };
-  synth.speak(utt);
-  setTimeout(finish, Math.max(3000, text.length * 150));
-}
-
-function readWord() {
-  if (!currentWord || !synth) return;
-  cancelSpeech();
-  setBotState('speaking');
-  setTimeout(() => speak(currentWord, currentLang, 0.82, 1.1, () => setBotState('')), 50);
-}
-
-// ── Serbian Cyrillic letter phonetic helpers ─────────────────────
-// Map each Cyrillic letter to a short Serbian word starting with that sound
-// This forces the TTS to say the correct Serbian phoneme, not English letter names
-const SR_LETTER_PHONETICS = {
-  'А':'а', 'Б':'бе', 'В':'ве', 'Г':'ге', 'Д':'де',
-  'Ђ':'ђе', 'Е':'е', 'Ж':'же', 'З':'зе', 'И':'и',
-  'Ј':'је', 'К':'ке', 'Л':'ле', 'Љ':'ље', 'М':'ме',
-  'Н':'не', 'Њ':'ње', 'О':'о', 'П':'пе', 'Р':'ре',
-  'С':'се', 'Т':'те', 'Ћ':'ће', 'У':'у', 'Ф':'фе',
-  'Х':'хе', 'Ц':'це', 'Ч':'че', 'Џ':'џе', 'Ш':'ше',
-};
-
-function srLetterSound(letter) {
-  return SR_LETTER_PHONETICS[letter.toUpperCase()] || letter;
-}
-
-// ── Per-language letter name pronunciations ──────────────────────
-// Each language spells letters using its OWN letter names, not English
-const LETTER_NAMES = {
-  fr: { // French letter names
-    'a':'a','b':'bé','c':'cé','d':'dé','e':'e','f':'effe','g':'gé',
-    'h':'ache','i':'i','j':'ji','k':'ka','l':'elle','m':'emme',
-    'n':'enne','o':'o','p':'pé','q':'ku','r':'erre','s':'esse',
-    't':'té','u':'u','v':'vé','w':'double vé','x':'iks','y':'i grec','z':'zède',
-    'é':'é','è':'è','ê':'ê','à':'à','â':'â','î':'î','ô':'ô','û':'û','ç':'cé cédille',
-  },
-  de: { // German letter names
-    'a':'a','b':'bé','c':'tsé','d':'dé','e':'e','f':'eff','g':'gé',
-    'h':'ha','i':'i','j':'jot','k':'ka','l':'ell','m':'em',
-    'n':'en','o':'o','p':'pé','q':'ku','r':'err','s':'ess',
-    't':'té','u':'u','v':'fau','w':'vé','x':'iks','y':'üpsilon','z':'tsett',
-    'ä':'ä','ö':'ö','ü':'ü','ß':'ess-tsett',
-  },
-  es: { // Spanish letter names
-    'a':'a','b':'be','c':'ce','d':'de','e':'e','f':'efe','g':'ge',
-    'h':'hache','i':'i','j':'jota','k':'ka','l':'ele','m':'eme',
-    'n':'ene','o':'o','p':'pe','q':'cu','r':'erre','s':'ese',
-    't':'te','u':'u','v':'uve','w':'uve doble','x':'equis','y':'ye','z':'zeta',
-    'ñ':'eñe','á':'a con acento','é':'e con acento','í':'i con acento',
-    'ó':'o con acento','ú':'u con acento','ü':'u con diéresis',
-  },
-  it: { // Italian letter names
-    'a':'a','b':'bi','c':'ci','d':'di','e':'e','f':'effe','g':'gi',
-    'h':'acca','i':'i','j':'i lunga','k':'cappa','l':'elle','m':'emme',
-    'n':'enne','o':'o','p':'pi','q':'cu','r':'erre','s':'esse',
-    't':'ti','u':'u','v':'vu','w':'doppia vu','x':'ics','y':'ipsilon','z':'zeta',
-  },
-};
-
-function getLetterName(letter, lang) {
-  const map = LETTER_NAMES[lang];
-  if (!map) return letter;
-  return map[letter.toLowerCase()] || letter;
-}
-
-function spellAloudThen(onDone) {
-  if (!currentWord || !synth) { if (onDone) onDone(); return; }
-  loadVoices();
-  cancelSpeech();
-  setBotState('speaking');
-  const word      = currentWord;
-  const isSr      = currentLang === 'sr';
-  const isRu      = currentLang === 'ru';
-  const isChinese = currentLang === 'zh';
-  const hasLetterNames = LETTER_NAMES[currentLang];
-
-  let items;
-  let gap = 300;
-
-  if (isChinese) {
-    // Chinese: say whole word twice slowly
-    items = [
-      { text: word, rate: 0.75 },
-      { text: word, rate: 0.60 },
-    ];
-    gap = 400;
-  } else if (isSr) {
-    // Serbian: perfectly phonetic — each letter IS its sound
-    const letters = word.replace(/ /g, '').split('');
-    items = [
-      { text: word, rate: 0.78 },
-      ...letters.map(l => ({ text: l, rate: 0.45 })),
-      { text: word, rate: 0.78 },
-    ];
-    gap = 450;
-  } else if (isRu) {
-    // Russian: Cyrillic, let Russian TTS pronounce each letter
-    const letters = word.replace(/ /g, '').split('');
-    items = [
-      { text: word, rate: 0.80 },
-      ...letters.map(l => ({ text: l, rate: 0.55 })),
-      { text: word, rate: 0.78 },
-    ];
-    gap = 380;
-  } else if (hasLetterNames) {
-    // French, German, Spanish, Italian — use native letter names
-    const letters = word.replace(/ /g, '').split('');
-    items = [
-      { text: word, rate: 0.80 },
-      ...letters.map(l => ({ text: getLetterName(l, currentLang), rate: 0.70 })),
-      { text: word, rate: 0.78 },
-    ];
-    gap = 320;
-  } else {
-    // English and others — standard letter by letter
-    const letters = word.replace(/ /g, '').split('');
-    items = [
-      { text: word, rate: 0.82 },
-      ...letters.map(l => ({ text: l, rate: 0.72 })),
-      { text: word, rate: 0.78 },
-    ];
-    gap = 280;
-  }
-
-  let idx = 0;
-  function next() {
-    if (idx >= items.length) { setBotState(''); if (onDone) onDone(); return; }
-    const { text, rate } = items[idx++];
-    const g = idx === 1 ? (isIOS ? 600 : 0) : gap;
-    setTimeout(() => speak(text, currentLang, rate, 1.05, next), g);
-  }
-  setTimeout(next, isIOS ? 400 : 80);
-}
-
-function spellAloud() { spellAloudThen(() => setBotState('')); }
-
-// ── Detect iOS ────────────────────────────────────────────────────
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-// iOS doesn't support Serbian or some other langs — map to closest supported
-const IOS_LANG_FALLBACK = {
-  'sr': 'hr-HR', // Croatian is closest to Serbian on iOS
-  'zh': 'zh-CN',
-};
-
-function getMicLang(lang) {
-  if (isIOS && IOS_LANG_FALLBACK[lang]) return IOS_LANG_FALLBACK[lang];
-  return LANG_CONFIG[lang].tts;
-}
-
-// ── Mic ───────────────────────────────────────────────────────────
-let recognition = null;
-let micRestartTimer = null;
-
-function stopMic() {
-  if (micRestartTimer) { clearTimeout(micRestartTimer); micRestartTimer = null; }
-  if (recognition) { try { recognition.abort(); } catch(e) {} recognition = null; }
-}
-
-function toggleMic() {
-  if (recognition) {
-    stopMic(); setBotState('');
-    setBubble(LANG_CONFIG[currentLang].greeting);
-    return;
-  }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    setBubble('😕 Voice not supported. Try Chrome or Safari.');
-    return;
-  }
-  cancelSpeech();
-  setBotState('listening');
-
-  // Show iOS-specific hint for Serbian since it falls back to Croatian recognition
-  if (isIOS && currentLang === 'sr') {
-    setBubble('🎤 Говори реч! (iOS: изговори латиницом)');
-  } else {
-    setBubble(LANG_CONFIG[currentLang].listening);
-  }
-
-  recognition = new SR();
-  recognition.lang           = getMicLang(currentLang);
-  recognition.continuous     = false;
-  recognition.interimResults = false;
-  recognition.maxAlternatives = isIOS ? 5 : 3;
-
-  let resultFired = false;
-
-  recognition.onresult = e => {
-    resultFired = true;
-    let transcript = '';
-    for (let i = 0; i < e.results[0].length; i++) {
-      const t = e.results[0][i].transcript.trim();
-      if (t.length > 0) { transcript = t; break; }
-    }
-    stopMic();
-    // iOS needs longer gap for audio session to switch mic→speaker
-    const delay = isIOS ? 900 : 150;
-    setTimeout(() => handleVoiceInput(transcript), delay);
-  };
-
-  recognition.onerror = e => {
-    if (e.error === 'aborted') return;
-    stopMic(); setBotState('');
-    const msgs = {
-      'not-allowed':   '🔒 Mic blocked. Allow microphone in settings.',
-      'no-speech':     isIOS ? '🎤 Tap again and speak clearly!' : LANG_CONFIG[currentLang].greeting.replace('!','') + '... try again! 😊',
-      'audio-capture': '🎤 No microphone found.',
-      'network':       '📡 Network error — check connection.',
-    };
-    setBubble(msgs[e.error] || ('Error: ' + e.error));
-  };
-
-  recognition.onend = () => {
-    if (!resultFired) {
-      stopMic(); setBotState('');
-      const cur = document.getElementById('bubbleText').textContent;
-      const listeningPhrases = ['Listening','écoute','höre','Слушаю','Слушам','听','Говори','Escuchando','Ascolto'];
-      if (listeningPhrases.some(p => cur.includes(p))) {
-        setBubble(LANG_CONFIG[currentLang].greeting);
+function parseRSS(xml, izvor) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'text/xml');
+  const items = Array.from(doc.querySelectorAll('item'));
+  const months = ['јан','феб','мар','апр','мај','јун','јул','авг','сеп','окт','нов','дец'];
+  return items.map(item => {
+    const title = latCyr(decodeHtml((item.querySelector('title')?.textContent || '').trim()));
+    const link  = (item.querySelector('link')?.textContent?.trim() ||
+                   item.querySelector('guid')?.textContent?.trim() || '#');
+    const desc  = decodeHtml((item.querySelector('description')?.textContent || '').replace(/<[^>]+>/g,'').trim());
+    const pub   = item.querySelector('pubDate')?.textContent || '';
+    let datum = '', ts = 0;
+    if (pub) {
+      const d = new Date(pub);
+      if (!isNaN(d)) {
+        ts = d.getTime();
+        datum = `${d.getDate()}. ${months[d.getMonth()]} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
       }
     }
-  };
+    return { title, link, desc, datum, ts, izvor };
+  }).filter(v => v.title && v.link && v.title.length > 10);
+}
 
+// ════════════════════════════════════
+// SRPSKI FUDBAL FILTER — NO Euro football!
+// ════════════════════════════════════
+const SRBIJA_KW = [
+  'суперлига','superliga','србија','srbija','репрезентациј','reprezentacij',
+  'фсс','fss','crvena zvezda','zvezda','звезда','партизан','partizan',
+  'vojvodin','војводин','чукарич','cukarič','cukaric','spartak','спартак',
+  'napredak','напредак','radnik','радник','novi pazar','нови пазар',
+  'tsc','backa topola','топола','voždovac','вождовац','zemun','земун',
+  'radnički','раднички','kolubara','железничар','zeleznicar',
+];
+const EURO_BLOCK = [
+  'premier league','la liga','serie a','bundesliga','ligue 1','liga prvaka',
+  'real madrid','barcelona','manchester','arsenal','chelsea','liverpool',
+  'bayern','juventus','milan','inter','psg','dortmund','ajax','tottenham',
+  'aston villa','newcastle','leicester','west ham','en premier','šampiona'
+];
+function isSrpskiFudbal(title, izvor) {
+  const t = (title || '').toLowerCase();
+  if (EURO_BLOCK.some(kw => t.includes(kw))) return false;
+  if (izvor && (izvor.includes('ФСС') || izvor.includes('Б92'))) return true;
+  if (izvor && izvor.includes('Танјуг')) return true;
+  return SRBIJA_KW.some(kw => t.includes(kw));
+}
+
+const SOURCES = [
+  { url: 'https://www.fss.rs/sr/rss.xml',                     izvor: 'ФСС',               max: 8 },
+  { url: 'https://www.mozzartsport.com/rss/1.xml',             izvor: 'Мозарт Спорт',      max: 8 },
+  { url: 'https://www.tanjug.rs/rss/sport/fudbal',             izvor: 'Танјуг',            max: 8 },
+  { url: 'https://www.b92.net/rss/sport/fudbal/srpski-fudbal', izvor: 'Б92 Српски фудбал', max: 6 },
+  { url: 'https://www.b92.net/rss/sport/fudbal/vesti',         izvor: 'Б92 Фудбал',        max: 6 },
+  { url: 'https://www.kurir.rs/rss/sport/fudbal',              izvor: 'Курир',             max: 6 },
+];
+
+// Claude API: ask to pick top 5 most relevant Serbian football headlines
+async function filterWithClaude(items) {
+  if (!items || !items.length) return items.slice(0,5);
   try {
-    recognition.start();
-    // iOS kills mic after ~5s silence — show tap-again hint
-    if (isIOS) {
-      micRestartTimer = setTimeout(() => {
-        if (recognition) {
-          setBubble(LANG_CONFIG[currentLang].greeting);
-          stopMic(); setBotState('');
-        }
-      }, 6000);
+    const list = items.slice(0, 30).map((it, i) => `${i+1}. [${it.izvor}] ${it.title}`).join('\n');
+    const prompt = `Si AI agent za srpski fudbal portal. Dati su ti naslovi vesti.\n\nZADATAK: Odaberi TACNO 5 najvaznijih naslova koji se ticu SRPSKOG FUDBALA (Superliga Srbije, Crvena zvezda, Partizan, Vojvodina, Reprezentacija Srbije, srpski treneri, domacd igraci).\nISKLUCI: Strane lige, Champions League sa stranim timovima, vesti o stranim igracima.\n\nOdgovori SAMO sa listom 5 rednih brojeva formata: 3,7,12,18,25\nBez objasnjenja, samo brojevi.\n\nNaslovi:\n${list}`;
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    if (!resp.ok) return items.slice(0,5);
+    const data = await resp.json();
+    const text = data.content?.find(b => b.type === 'text')?.text?.trim() || '';
+    const indices = text.match(/\d+/g);
+    if (!indices || indices.length < 3) return items.slice(0,5);
+    return indices.slice(0,5).map(n => items[parseInt(n)-1]).filter(Boolean);
+  } catch(e) { return items.slice(0,5); }
+}
+
+// Claude API: generate AI summary in Serbian for a news item
+async function getAiSummary(title, desc, link) {
+  try {
+    const prompt = `Si AI novinski agent za srpski fudbal. Na osnovu naslova i opisa, napisi kratki sazetek na srpskom cirilicnom pismu (2-3 recenice, max 250 karaktera). Samo sazetek, bez uvoda.\n\nNaslov: ${title}\nOpis: ${(desc||'').slice(0,300)}`;
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data.content?.find(b => b.type === 'text')?.text?.trim() || null;
+  } catch(e) { return null; }
+}
+
+// Toggle expand/collapse
+function toggleCard(card) {
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.ai-news-card.open').forEach(c => { if(c!==card) c.classList.remove('open'); });
+  if (isOpen) { card.classList.remove('open'); return; }
+  card.classList.add('open');
+  const fullDiv = card.querySelector('.ani-full');
+  if (fullDiv && !fullDiv.dataset.loaded) {
+    fullDiv.dataset.loaded = '1';
+    const title = card.dataset.title;
+    const desc = card.dataset.desc;
+    const link = card.dataset.link;
+    const textEl = fullDiv.querySelector('.ani-full-text');
+    textEl.innerHTML = '<span class="ani-loading-full">АИ генерише сажетак...</span>';
+    getAiSummary(title, desc, link).then(summary => {
+      if (summary) {
+        textEl.textContent = summary;
+      } else if (desc && desc.length > 20) {
+        textEl.textContent = desc.slice(0, 500);
+      } else {
+        textEl.textContent = 'Кликните на линк да прочитате пуну вест.';
+      }
+    });
+  }
+}
+
+let agentRunning = false;
+let lastAgentRun = 0;
+
+async function runAiAgent(force=false) {
+  if (agentRunning && !force) return;
+  const now = Date.now();
+  if (!force && now - lastAgentRun < 2 * 60 * 1000) return;
+  agentRunning = true;
+  lastAgentRun = now;
+
+  const container = document.getElementById('ai-news-container');
+  const countEl   = document.getElementById('ai-count');
+  const tsEl      = document.getElementById('agent-ts');
+
+  container.innerHTML = '<div class="ai-agent-loading">АИ агент прикупља вести из ФСС, Мозарт Спорт, Танјуг и Б92...</div>';
+
+  const now24 = Date.now() - 86400000;
+  const rssPromises = SOURCES.map(async src => {
+    try {
+      const xml = await fetchRSS(src.url);
+      let items = parseRSS(xml, src.izvor).slice(0, src.max);
+      items = items.filter(i => isSrpskiFudbal(i.title, src.izvor));
+      return items.map(i => ({...i, fresh: i.ts > now24}));
+    } catch(e) { return []; }
+  });
+
+  const settled = await Promise.allSettled(
+    rssPromises.map(p => Promise.race([p, new Promise(res => setTimeout(() => res([]), 14000))]))
+  );
+  const rssResults = settled.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+
+  let allItems = [];
+  if (rssResults.length > 0) {
+    const seen = new Set();
+    const deduped = [];
+    for (const item of rssResults) {
+      const slug = item.title.toLowerCase().replace(/[^\wа-яёЀ-ӿ]/gi,'').slice(0,60);
+      if (!seen.has(slug)) { seen.add(slug); deduped.push(item); }
+    }
+    deduped.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    allItems = deduped;
+  }
+
+  if (!allItems.length) {
+    container.innerHTML = `<div style="padding:16px;color:#9ca3af;font-size:13px">
+      ⚠️ Вести тренутно нису доступне. Покушајте касније или посетите изворе директно.
+      <div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap">
+        <a href="https://www.fss.rs" target="_blank" style="color:var(--red)">ФСС →</a>
+        <a href="https://www.mozzartsport.com" target="_blank" style="color:#e05c00">Мозарт →</a>
+        <a href="https://www.tanjug.rs/sport/fudbal" target="_blank" style="color:#003F8A">Танјуг →</a>
+        <a href="https://www.b92.net/sport/fudbal/" target="_blank" style="color:#CC0000">Б92 →</a>
+      </div>
+    </div>`;
+    agentRunning = false;
+    return;
+  }
+
+  container.innerHTML = '<div class="ai-agent-loading">АИ бира топ 5 вести о српском фудбалу...</div>';
+
+  // Claude picks the top 5 most relevant Serbian football headlines
+  const top5 = await filterWithClaude(allItems);
+
+  _thumbIdx = 0;
+  const html = top5.map((item) => {
+    const isFresh = item.fresh;
+    const scls = srcClass(item.izvor);
+    const thumb = nextThumb();
+    const freshBadge = isFresh ? `<span class="ani-fresh">24ч</span>` : '';
+    const url = (item.link || '#').replace(/'/g,'%27').replace(/"/g,'%22');
+    const titleEsc = (item.title||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const descEsc = (item.desc||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;').slice(0,400);
+    return `<div class="ai-news-card" data-title="${titleEsc}" data-desc="${descEsc}" data-link="${url}" onclick="toggleCard(this)">
+      <div class="ai-news-card-header">
+        <div class="ani-thumb">${thumb}</div>
+        <div class="ani-body">
+          <div class="ani-src ${scls}">${item.izvor}${freshBadge}</div>
+          <div class="ani-ttl">${item.title.slice(0,120)}</div>
+          <div class="ani-dt">${item.datum}</div>
+          <div class="ani-expand-hint">Прочитај сажетак</div>
+        </div>
+      </div>
+      <div class="ani-full">
+        <div class="ani-full-text"></div>
+        <a class="ani-full-link" href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Пуна вест →</a>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `<div class="ai-news-list">${html}</div>`;
+
+  if (countEl) countEl.textContent = top5.length;
+  if (tsEl) {
+    const d = new Date();
+    tsEl.textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  const vestiTs = document.getElementById('vesti-ts');
+  if (vestiTs) {
+    const d = new Date();
+    vestiTs.textContent = `Ажурирано у ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  ucitajTicker(top5);
+  agentRunning = false;
+}
+// ════════════════════════════════════
+// TICKER
+// ════════════════════════════════════
+const TIMOVI_MAP = {
+  'FK Crvena zvezda':'Црвена звезда','Crvena zvezda':'Црвена звезда','Red Star Belgrade':'Црвена звезда',
+  'FK Partizan':'Партизан','Partizan':'Партизан','Partizan Belgrade':'Партизан',
+  'FK Vojvodina':'Војводина','Vojvodina':'Војводина',
+  'FK Čukarički':'Чукарички','FK Cukaricki':'Чукарички',
+  'FK Spartak Subotica':'Спартак Суботица',
+  'FK Radnik Surdulica':'Радник Сурдулица',
+  'FK Napredak Kruševac':'Напредак Крушевац',
+  'FK Novi Pazar':'Нови Пазар',
+  'FK TSC Bačka Topola':'ТСЦ Бачка Топола',
+  'FK Radnički Niš':'Раднички Ниш',
+  'FK Voždovac':'Вождовац',
+};
+function timT(n){if(!n)return '';return TIMOVI_MAP[n]||TIMOVI_MAP[n.replace(/^FK /,'')]||n;}
+
+async function ucitajTicker(newsItems) {
+  const track = document.getElementById('ticker-track');
+  if (!track) return;
+  const stavke = [];
+
+  // Live scores
+  try {
+    const liveR = await fetch(`${APIF_BASE}/fixtures?league=${APIF_LEAGUE}&season=${APIF_SEASON}&live=all`,
+      {headers:{'x-apisports-key':APIF_KEY},signal:AbortSignal.timeout(6000)});
+    if (liveR.ok) {
+      const ld = await liveR.json();
+      (ld.response||[]).forEach(f=>{
+        const d=timT(f.teams?.home?.name||'');
+        const g=timT(f.teams?.away?.name||'');
+        const min=f.fixture?.status?.elapsed?`${f.fixture.status.elapsed}'`:'УЖИВО';
+        stavke.push(`🔴 ${d} ${f.goals?.home??''}–${f.goals?.away??''} ${g} (${min})`);
+      });
+    }
+  } catch(e){}
+
+  // News headlines from agent
+  if (newsItems && newsItems.length) {
+    newsItems.slice(0,6).forEach(i => stavke.push(`📰 ${i.title.slice(0,70)}`));
+  }
+
+  if (!stavke.length) stavke.push('Суперлига Србије 2025/26', 'СрпскиФудбал.цом', 'Вести · Резултати · Табела');
+
+  const html = [...stavke,...stavke].map(s=>`<span>${s}</span>`).join('');
+  track.innerHTML = html;
+  track.style.animation='none';
+  track.offsetHeight;
+  const dur = Math.max(20, stavke.length * 4);
+  track.style.animation=`ticker ${dur}s linear infinite`;
+}
+
+// ════════════════════════════════════
+// SUPERLIGA WIDGET
+// ════════════════════════════════════
+async function api(path) {
+  let workerPath='';
+  if(path.includes('standings'))       workerPath='/tabela';
+  else if(path.includes('events/last')) workerPath='/rezultati';
+  else if(path.includes('events/next')) workerPath='/raspored';
+  else if(path.includes('events/live')) workerPath='/uzivo';
+  if(workerPath){
+    const r=await fetch(WORKER_URL+workerPath,{signal:AbortSignal.timeout(10000)});
+    if(r.ok){
+      const data=await r.json();
+      if(workerPath==='/tabela'&&data.tabela){
+        return{standings:[{rows:data.tabela.map(t=>({
+          position:t.poz,team:{name:t.klub,form:t.forma?.split('').map(f=>f==='П'?'W':f==='Н'?'D':f==='И'?'L':f).join('')||''},
+          matches:t.u,wins:t.p,draws:t.n,losses:t.i,scoreDiffFormatted:t.gd,points:t.bod,
+        }))}]};
+      }
+      if(workerPath==='/rezultati'&&data.zadnje){
+        return{events:data.zadnje.utakmice?.map(u=>({
+          id:u.id,roundInfo:{round:data.zadnje.kolo},
+          status:{type:u.statusTip||(u.golD!==null?'finished':'notstarted')},
+          homeTeam:{name:u.domacin},awayTeam:{name:u.gost},
+          homeScore:{current:u.golD},awayScore:{current:u.golG},
+          startTimestamp:null,time:{played:u.minut},
+        }))||[]};
+      }
+      if(workerPath==='/raspored'&&data.sledece){
+        return{events:data.sledece.map(u=>({
+          id:u.id,roundInfo:{round:u.kolo},status:{type:'notstarted'},
+          homeTeam:{name:u.domacin},awayTeam:{name:u.gost},startTimestamp:u.timestamp,
+        }))};
+      }
+      if(workerPath==='/uzivo'&&data.uzivo){
+        return{events:data.uzivo.map(u=>({
+          homeTeam:{name:u.domacin},awayTeam:{name:u.gost},
+          homeScore:{current:u.golD},awayScore:{current:u.golG},
+          status:{type:'inprogress'},time:{played:u.minut},
+        }))};
+      }
+      return data;
     }
   }
-  catch(e) { stopMic(); setBotState(''); setBubble('Could not start mic: ' + e.message); }
+  throw new Error('API nedostupan');
 }
 
-// ── Init ──────────────────────────────────────────────────────────
-document.getElementById('botFace').addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' ') toggleMic();
+const DEMO_LAST={events:[
+  {id:1,roundInfo:{round:24},status:{type:'finished'},startTimestamp:1742000000,homeTeam:{name:'FK Partizan'},awayTeam:{name:'FK Vojvodina'},homeScore:{current:2},awayScore:{current:1}},
+  {id:2,roundInfo:{round:24},status:{type:'finished'},startTimestamp:1741900000,homeTeam:{name:'FK Radnik Surdulica'},awayTeam:{name:'FK Crvena zvezda'},homeScore:{current:0},awayScore:{current:3}},
+  {id:3,roundInfo:{round:24},status:{type:'inprogress'},startTimestamp:1742050000,homeTeam:{name:'FK Čukarički'},awayTeam:{name:'FK Novi Pazar'},homeScore:{current:1},awayScore:{current:1},time:{played:68}},
+]};
+const DEMO_STAND={standings:[{rows:[
+  {position:1,team:{name:'FK Crvena zvezda',form:'ПППНП'},matches:24,wins:17,draws:5,losses:2,scoreDiffFormatted:'+34',points:56},
+  {position:2,team:{name:'FK Partizan',form:'ППППИ'},matches:24,wins:16,draws:6,losses:2,scoreDiffFormatted:'+28',points:54},
+  {position:3,team:{name:'FK Vojvodina',form:'ПИНПН'},matches:24,wins:12,draws:4,losses:8,scoreDiffFormatted:'+10',points:40},
+  {position:4,team:{name:'FK Čukarički',form:'ННПИП'},matches:24,wins:10,draws:6,losses:8,scoreDiffFormatted:'+6',points:36},
+  {position:5,team:{name:'FK Spartak Subotica',form:'ИППНИ'},matches:24,wins:9,draws:5,losses:10,scoreDiffFormatted:'+2',points:32},
+  {position:6,team:{name:'FK Napredak Kruševac',form:'НИНИП'},matches:24,wins:8,draws:5,losses:11,scoreDiffFormatted:'-4',points:29},
+  {position:7,team:{name:'FK Radnik Surdulica',form:'ПИНИI'},matches:24,wins:7,draws:5,losses:12,scoreDiffFormatted:'-8',points:26},
+  {position:8,team:{name:'FK Novi Pazar',form:'ИИНИИ'},matches:24,wins:4,draws:4,losses:16,scoreDiffFormatted:'-18',points:16},
+]}]};
+const DEMO_NEXT={events:[
+  {id:10,roundInfo:{round:25},status:{type:'notstarted'},startTimestamp:1742832000,homeTeam:{name:'FK Crvena zvezda'},awayTeam:{name:'FK Partizan'}},
+  {id:11,roundInfo:{round:25},status:{type:'notstarted'},startTimestamp:1742745600,homeTeam:{name:'FK Vojvodina'},awayTeam:{name:'FK Spartak Subotica'}},
+]};
+
+async function safeApi(path,demo){
+  try{const r=await api(path);if(r)return r;throw new Error('empty');}
+  catch(e){return demo;}
+}
+
+function datumVreme(ts){
+  if(!ts||ts<1e9)return{datum:'',vreme:''};
+  const d=new Date(ts*1000);
+  if(isNaN(d.getTime()))return{datum:'',vreme:''};
+  const m=['јан','феб','мар','апр','мај','јун','јул','авг','сеп','окт','нов','дец'];
+  return{datum:`${d.getDate()}. ${m[d.getMonth()].toUpperCase()}`,vreme:`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+}
+function ts(){const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function hide(id){const el=document.getElementById(id);if(el)el.style.display='none';}
+function show(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+
+function matchRow(e){
+  const tip=e.status?.type||'notstarted';
+  const live=tip==='inprogress'||tip==='halftime';
+  const done=tip==='finished';
+  const soon=!live&&!done;
+  const d=timT(e.homeTeam?.name),g=timT(e.awayTeam?.name);
+  const gD=e.homeScore?.current,gG=e.awayScore?.current;
+  const minut=e.time?.played;
+  let sc;
+  if(soon){const dv=datumVreme(e.startTimestamp);sc=`<div class="slw-scn grey">${dv.datum}</div><div class="slw-st blue">${dv.vreme}</div>`;}
+  else sc=`${live&&minut?`<div class="slw-min">${minut}'</div>`:''}<div class="slw-scn ${live?'red':''}">${gD} – ${gG}</div>${live?'<div class="slw-st red">УЖИВО</div>':''}`;
+  return`<div class="slw-match ${live?'live':''}"><div class="slw-ht r">${d}</div><div class="slw-sc">${sc}</div><div class="slw-ht l">${g}</div></div>`;
+}
+
+function slTab(name,btn){
+  document.querySelectorAll('.slw-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.slw-panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('slw-panel-'+name).classList.add('on');
+  if(name==='tab')loadTab();
+  if(name==='uzi')loadUzi();
+  if(name==='ras')loadRas();
+}
+
+let rezLoaded=false;
+async function loadRez(){
+  try{
+    const d=await safeApi(`/unique-tournament/${TID}/season/${SID}/events/last/0`,DEMO_LAST);
+    hide('slw-spin-rez');
+    const evs=d.events||[];
+    if(!evs.length){show('slw-out-rez','<div class="slw-err">Нема резултата.</div>');return;}
+    const byRound={};
+    evs.forEach(e=>{const k=e.roundInfo?.round||0;(byRound[k]=byRound[k]||[]).push(e);});
+    const last=Math.max(...Object.keys(byRound).map(Number));
+    show('slw-out-rez',`<div class="slw-rnd"><span>Суперлига — Коло ${last}</span></div>${byRound[last].map(matchRow).join('')}`);
+    document.getElementById('slw-ts').textContent='Ажурирано у '+ts();
+    rezLoaded=true;
+  }catch(e){hide('slw-spin-rez');show('slw-out-rez',`<div class="slw-err">Грешка: ${e.message}</div>`);}
+}
+
+let tabLoaded=false;
+async function loadTab(){
+  if(tabLoaded)return;
+  try{
+    const d=await safeApi(`/unique-tournament/${TID}/season/${SID}/standings/total`,DEMO_STAND);
+    hide('slw-spin-tab');
+    const rows=d.standings?.[0]?.rows||[];
+    if(!rows.length){show('slw-out-tab','<div class="slw-err">Нема табеле.</div>');return;}
+    const n=rows.length;
+    const tbody=rows.map((r,i)=>{
+      let zone='';
+      if(i===0)zone='cl';else if(i<=2)zone='el';else if(i===3)zone='ecl';else if(i>=n-2)zone='rel';
+      const gd=r.scoreDiffFormatted||`${r.scoresFor}-${r.scoresAgainst}`;
+      return`<tr class="${zone}"><td>${r.position}</td><td class="l">${timT(r.team?.name||'')}</td><td>${r.matches}</td><td class="col-pni">${r.wins}</td><td class="col-pni">${r.draws}</td><td class="col-pni">${r.losses}</td><td>${gd}</td><td class="slw-pts">${r.points}</td></tr>`;
+    }).join('');
+    show('slw-out-tab',`<div class="slw-tbl-wrap"><table class="slw-tbl"><thead><tr><th>#</th><th class="l">Клуб</th><th title="Утакмице">У</th><th class="col-pni" title="Победе">П</th><th class="col-pni" title="Нерешено">Н</th><th class="col-pni" title="Изгубљено">И</th><th title="Гол разлика">ГР</th><th title="Бодови">Бод</th></tr></thead><tbody>${tbody}</tbody></table></div><div class="slw-legend"><div class="slw-leg"><div class="slw-legdot" style="background:#D4A017"></div>Лига шампиона</div><div class="slw-leg"><div class="slw-legdot" style="background:#003F8A"></div>Лига Европе</div><div class="slw-leg"><div class="slw-legdot" style="background:#16a34a"></div>Конференц лига</div><div class="slw-leg"><div class="slw-legdot" style="background:#CC0000"></div>Испадање</div></div>`);
+    document.getElementById('slw-ts').textContent='Ажурирано у '+ts();
+    tabLoaded=true;
+  }catch(e){hide('slw-spin-tab');show('slw-out-tab',`<div class="slw-err">Грешка: ${e.message}</div>`);}
+}
+
+async function loadUzi(){
+  document.getElementById('slw-out-uzi').innerHTML='';
+  const badge=document.getElementById('slw-badge'),dot=document.getElementById('slw-dot');
+  try{
+    const r=await fetch(`${APIF_BASE}/fixtures?league=${APIF_LEAGUE}&season=${APIF_SEASON}&live=all`,{headers:{'x-apisports-key':APIF_KEY},signal:AbortSignal.timeout(10000)});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const data=await r.json();
+    hide('slw-spin-uzi');
+    const fixtures=data.response||[];
+    if(fixtures.length){
+      if(badge){badge.textContent=fixtures.length;badge.style.display='inline-block';}
+      if(dot)dot.style.display='block';
+      const rows=fixtures.map(f=>{
+        const dom=timT(f.teams?.home?.name||''),gost=timT(f.teams?.away?.name||'');
+        const golD=f.goals?.home??'–',golG=f.goals?.away??'–';
+        const min=f.fixture?.status?.elapsed?`${f.fixture.status.elapsed}'`:'УЖИВО';
+        return`<div class="slw-match live"><div class="slw-ht r">${dom}</div><div class="slw-sc"><div class="slw-min">${min}</div><div class="slw-scn red">${golD} – ${golG}</div><div class="slw-st red">УЖИВО</div></div><div class="slw-ht l">${gost}</div></div>`;
+      }).join('');
+      show('slw-out-uzi',`<div class="slw-rnd"><span>🔴 УЖИВО — Суперлига</span></div>${rows}`);
+    }else{
+      if(badge)badge.style.display='none';if(dot)dot.style.display='none';
+      show('slw-out-uzi','<div class="slw-spin" style="color:#9ca3af;animation:none">Тренутно нема утакмица уживо.</div>');
+    }
+    document.getElementById('slw-ts').textContent='Ажурирано у '+ts();
+  }catch(e){hide('slw-spin-uzi');show('slw-out-uzi',`<div class="slw-err">Грешка при учитавању: ${e.message}</div>`);}
+}
+
+async function loadRas(){
+  if(document.getElementById('slw-out-ras').innerHTML)return;
+  try{
+    const d=await safeApi(`/unique-tournament/${TID}/season/${SID}/events/next/0`,DEMO_NEXT);
+    hide('slw-spin-ras');
+    const evs=d.events||[];
+    if(!evs.length){show('slw-out-ras','<div class="slw-err">Нема предстојећих утакмица.</div>');return;}
+    const byRound={};
+    evs.forEach(e=>{const k=e.roundInfo?.round||0;(byRound[k]=byRound[k]||[]).push(e);});
+    let html='';
+    for(const[k,utakmice]of Object.entries(byRound).sort((a,b)=>a[0]-b[0])){
+      html+=`<div class="slw-rnd"><span>Коло ${k}</span></div>`;
+      html+=utakmice.map(matchRow).join('');
+    }
+    show('slw-out-ras',html);
+    document.getElementById('slw-ts').textContent='Ажурирано у '+ts();
+  }catch(e){hide('slw-spin-ras');show('slw-out-ras',`<div class="slw-err">Грешка: ${e.message}</div>`);}
+}
+
+// ════════════════════════════════════
+// NAV SCROLL
+// ════════════════════════════════════
+window.addEventListener('scroll',()=>{
+  const pos=window.scrollY+80;
+  document.querySelectorAll('nav a').forEach(a=>{
+    const id=a.getAttribute('href').replace('#','');
+    const s=document.getElementById(id);
+    if(s&&pos>=s.offsetTop&&pos<s.offsetTop+s.offsetHeight){
+      document.querySelectorAll('nav a').forEach(x=>x.classList.remove('on'));
+      a.classList.add('on');
+    }
+  });
 });
 
-// ── iOS Audio Unlock ──────────────────────────────────────────────
-// iOS blocks ALL audio until first user tap — speak a silent utterance
-// on first interaction to unlock the audio session
-let iosAudioUnlocked = false;
-function unlockIOSAudio() {
-  if (!isIOS || iosAudioUnlocked || !synth) return;
-  const utt = new SpeechSynthesisUtterance(' ');
-  utt.volume = 0;
-  utt.rate   = 2;
-  synth.speak(utt);
-  iosAudioUnlocked = true;
-}
+// ════════════════════════════════════
+// VISIBILITY REFRESH
+// ════════════════════════════════════
+let _lastVis=Date.now();
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&Date.now()-_lastVis>120000){
+    _lastVis=Date.now();
+    runAiAgent(true);
+    rezLoaded=false;
+    loadRez();
+  }
+});
 
-// Call unlock on any first touch anywhere on page (iOS)
-if (isIOS) {
-  document.addEventListener('touchstart', function onFirstTouch() {
-    unlockIOSAudio();
-    document.removeEventListener('touchstart', onFirstTouch);
-  }, { once: true });
-}
-
-setBotState('');
-setBubble(LANG_CONFIG[currentLang].greeting);
-updateScore();
+// ════════════════════════════════════
+// INIT
+// ════════════════════════════════════
+runAiAgent();
+loadRez();
+loadUzi();
+setInterval(()=>runAiAgent(), 2*60*1000);   // refresh agent every 2 min
+setInterval(loadRez, 60*1000);
+setInterval(loadUzi, 30*1000);
 </script>
 </body>
 </html>
